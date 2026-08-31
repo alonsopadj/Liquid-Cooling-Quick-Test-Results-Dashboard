@@ -1,0 +1,2114 @@
+/**
+ * Data Service & Normalization Engine
+ * Handles CSV parsing, data structures, threshold evaluations, and default dataset
+ */
+
+const DEFAULT_CSV_RAW = `POD,CDU,Week,Date,Parameter,Measured Data,Comment,,,Parameter,Lower Limit,Upper Limit
+POD #3,CDU-02,WK 4 2026,22/01/2026,PH,8.73,,,,,,
+POD #3,CDU-02,WK 4 2026,22/01/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-02,WK 4 2026,22/01/2026,Conductivity,601,,,,,,
+POD #3,CDU-02,WK 4 2026,22/01/2026,Turbidity,3,,,,,,
+POD #3,CDU-02,WK 4 2026,22/01/2026,TDS,404,,,,,,
+POD #3,CDU-02,WK 4 2026,22/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 4 2026,22/01/2026,PH,8.72,,,,,,
+POD #3,CDU-01,WK 4 2026,22/01/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-01,WK 4 2026,22/01/2026,Conductivity,620,,,,,,
+POD #3,CDU-01,WK 4 2026,22/01/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 4 2026,22/01/2026,TDS,416,,,,,,
+POD #3,CDU-01,WK 4 2026,22/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 5 2026,29/01/2026,PH,8.67,,,,,,
+POD #3,CDU-02,WK 5 2026,29/01/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-02,WK 5 2026,29/01/2026,Conductivity,607,,,,,,
+POD #3,CDU-02,WK 5 2026,29/01/2026,Turbidity,2,,,,,,
+POD #3,CDU-02,WK 5 2026,29/01/2026,TDS,409,,,,,,
+POD #3,CDU-02,WK 5 2026,29/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 5 2026,29/01/2026,PH,8.7,,,,,,
+POD #3,CDU-01,WK 5 2026,29/01/2026,ATP Bacteria,4,,,,,,
+POD #3,CDU-01,WK 5 2026,29/01/2026,Conductivity,609,,,,,,
+POD #3,CDU-01,WK 5 2026,29/01/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 5 2026,29/01/2026,TDS,412,,,,,,
+POD #3,CDU-01,WK 5 2026,29/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 14 2026,02/04/2026,PH,8.69,,,,,,
+POD #3,CDU-02,WK 14 2026,02/04/2026,ATP Bacteria,681,Biocide added 178ml,,,,,
+POD #3,CDU-02,WK 14 2026,02/04/2026,Conductivity,606,,,,,,
+POD #3,CDU-02,WK 14 2026,02/04/2026,Turbidity,1,,,,,,
+POD #3,CDU-02,WK 14 2026,02/04/2026,TDS,408,,,,,,
+POD #3,CDU-02,WK 14 2026,02/04/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 14 2026,02/04/2026,PH,8.68,,,,,,
+POD #3,CDU-01,WK 14 2026,02/04/2026,ATP Bacteria,1054,Biocide added 178ml,,,,,
+POD #3,CDU-01,WK 14 2026,02/04/2026,Conductivity,596,,,,,,
+POD #3,CDU-01,WK 14 2026,02/04/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 14 2026,02/04/2026,TDS,406,,,,,,
+POD #3,CDU-01,WK 14 2026,02/04/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 40 2026,02/10/2026,PH,8.56,,,,,,
+POD #3,CDU-02,WK 40 2026,02/10/2026,ATP Bacteria,120,,,,,,
+POD #3,CDU-02,WK 40 2026,02/10/2026,Conductivity,639.7,,,,,,
+POD #3,CDU-02,WK 40 2026,02/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 40 2026,02/10/2026,TDS,432.5,,,,,,
+POD #3,CDU-02,WK 40 2026,02/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 40 2026,02/10/2026,PH,8.68,,,,,,
+POD #3,CDU-01,WK 40 2026,02/10/2026,ATP Bacteria,296,,,,,,
+POD #3,CDU-01,WK 40 2026,02/10/2026,Conductivity,619.8,,,,,,
+POD #3,CDU-01,WK 40 2026,02/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 40 2026,02/10/2026,TDS,420.7,,,,,,
+POD #3,CDU-01,WK 40 2026,02/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 40 2026,02/10/2026,PH,8.65,,,,,,
+POD #3,CDU-03,WK 40 2026,02/10/2026,ATP Bacteria,491,"Facilities added only 1ml per gallon of biocide in the release of the CDU, the rest of the biocide added (105ml) on Feb-12",,,,,
+POD #3,CDU-03,WK 40 2026,02/10/2026,Conductivity,627.8,,,,,,
+POD #3,CDU-03,WK 40 2026,02/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 40 2026,02/10/2026,TDS,418.8,,,,,,
+POD #3,CDU-03,WK 40 2026,02/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 8 2026,17/2/2026,PH,8.67,,,,,,
+POD #3,CDU-01,WK 8 2026,17/2/2026,ATP Bacteria,111,,,,,,
+POD #3,CDU-01,WK 8 2026,17/2/2026,Conductivity,628,,,,,,
+POD #3,CDU-01,WK 8 2026,17/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 8 2026,17/2/2026,TDS,428,,,,,,
+POD #3,CDU-01,WK 8 2026,17/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 8 2026,17/2/2026,PH,8.7,,,,,,
+POD #3,CDU-02,WK 8 2026,17/2/2026,ATP Bacteria,168,,,,,,
+POD #3,CDU-02,WK 8 2026,17/2/2026,Conductivity,644,,,,,,
+POD #3,CDU-02,WK 8 2026,17/2/2026,Turbidity,5,,,,,,
+POD #3,CDU-02,WK 8 2026,17/2/2026,TDS,438,,,,,,
+POD #3,CDU-02,WK 8 2026,17/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 8 2026,17/2/2026,PH,8.75,,,,,,
+POD #3,CDU-03,WK 8 2026,17/2/2026,ATP Bacteria,54,,,,,,
+POD #3,CDU-03,WK 8 2026,17/2/2026,Conductivity,631,,,,,,
+POD #3,CDU-03,WK 8 2026,17/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 8 2026,17/2/2026,TDS,429,,,,,,
+POD #3,CDU-03,WK 8 2026,17/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 8 2026,17/2/2026,PH,8.76,,,,,,
+POD #3,CDU-04,WK 8 2026,17/2/2026,ATP Bacteria,4,,,,,,
+POD #3,CDU-04,WK 8 2026,17/2/2026,Conductivity,646,,,,,,
+POD #3,CDU-04,WK 8 2026,17/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-04,WK 8 2026,17/2/2026,TDS,440,,,,,,
+POD #3,CDU-04,WK 8 2026,17/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 9 2026,25/2/2026,PH,8.58,,,,,,
+POD #3,CDU-01,WK 9 2026,25/2/2026,ATP Bacteria,283,,,,,,
+POD #3,CDU-01,WK 9 2026,25/2/2026,Conductivity,632,,,,,,
+POD #3,CDU-01,WK 9 2026,25/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 9 2026,25/2/2026,TDS,432,,,,,,
+POD #3,CDU-01,WK 9 2026,25/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 9 2026,25/2/2026,PH,8.6,,,,,,
+POD #3,CDU-02,WK 9 2026,25/2/2026,ATP Bacteria,251,,,,,,
+POD #3,CDU-02,WK 9 2026,25/2/2026,Conductivity,648,,,,,,
+POD #3,CDU-02,WK 9 2026,25/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 9 2026,25/2/2026,TDS,440,,,,,,
+POD #3,CDU-02,WK 9 2026,25/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 9 2026,25/2/2026,PH,8.65,,,,,,
+POD #3,CDU-03,WK 9 2026,25/2/2026,ATP Bacteria,706,Added 178ml of biocide 25-Feb-26,,,,,
+POD #3,CDU-03,WK 9 2026,25/2/2026,Conductivity,590,,,,,,
+POD #3,CDU-03,WK 9 2026,25/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 9 2026,25/2/2026,TDS,401,,,,,,
+POD #3,CDU-03,WK 9 2026,25/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 9 2026,25/2/2026,PH,8.67,,,,,,
+POD #3,CDU-04,WK 9 2026,25/2/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-04,WK 9 2026,25/2/2026,Conductivity,647,,,,,,
+POD #3,CDU-04,WK 9 2026,25/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-04,WK 9 2026,25/2/2026,TDS,440,,,,,,
+POD #3,CDU-04,WK 9 2026,25/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 9 2026,25/2/2026,PH,8.69,,,,,,
+POD #3,CDU-05,WK 9 2026,25/2/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-05,WK 9 2026,25/2/2026,Conductivity,667,,,,,,
+POD #3,CDU-05,WK 9 2026,25/2/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 9 2026,25/2/2026,TDS,453,,,,,,
+POD #3,CDU-05,WK 9 2026,25/2/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 10 2026,03/03/2026,PH,8.71,,,,,,
+POD #3,CDU-01,WK 10 2026,03/03/2026,ATP Bacteria,240,,,,,,
+POD #3,CDU-01,WK 10 2026,03/03/2026,Conductivity,638,,,,,,
+POD #3,CDU-01,WK 10 2026,03/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 10 2026,03/03/2026,TDS,435,,,,,,
+POD #3,CDU-01,WK 10 2026,03/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 10 2026,03/03/2026,PH,8.79,,,,,,
+POD #3,CDU-02,WK 10 2026,03/03/2026,ATP Bacteria,548,,,,,,
+POD #3,CDU-02,WK 10 2026,03/03/2026,Conductivity,645,,,,,,
+POD #3,CDU-02,WK 10 2026,03/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 10 2026,03/03/2026,TDS,439,,,,,,
+POD #3,CDU-02,WK 10 2026,03/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 10 2026,03/03/2026,PH,8.77,,,,,,
+POD #3,CDU-03,WK 10 2026,03/03/2026,ATP Bacteria,345,,,,,,
+POD #3,CDU-03,WK 10 2026,03/03/2026,Conductivity,621,,,,,,
+POD #3,CDU-03,WK 10 2026,03/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 10 2026,03/03/2026,TDS,422,,,,,,
+POD #3,CDU-03,WK 10 2026,03/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 10 2026,03/03/2026,PH,8.84,,,,,,
+POD #3,CDU-04,WK 10 2026,03/03/2026,ATP Bacteria,19,,,,,,
+POD #3,CDU-04,WK 10 2026,03/03/2026,Conductivity,650,,,,,,
+POD #3,CDU-04,WK 10 2026,03/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-04,WK 10 2026,03/03/2026,TDS,442,,,,,,
+POD #3,CDU-04,WK 10 2026,03/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 10 2026,03/03/2026,PH,8.81,,,,,,
+POD #3,CDU-05,WK 10 2026,03/03/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-05,WK 10 2026,03/03/2026,Conductivity,670,,,,,,
+POD #3,CDU-05,WK 10 2026,03/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 10 2026,03/03/2026,TDS,457,,,,,,
+POD #3,CDU-05,WK 10 2026,03/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 40 2026,03/10/2026,PH,8.5,,,,,,
+POD #3,CDU-01,WK 40 2026,03/10/2026,ATP Bacteria,36,,,,,,
+POD #3,CDU-01,WK 40 2026,03/10/2026,Conductivity,661,,,,,,
+POD #3,CDU-01,WK 40 2026,03/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 40 2026,03/10/2026,TDS,451,,,,,,
+POD #3,CDU-01,WK 40 2026,03/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 40 2026,03/10/2026,PH,8.53,,,,,,
+POD #3,CDU-02,WK 40 2026,03/10/2026,ATP Bacteria,99,,,,,,
+POD #3,CDU-02,WK 40 2026,03/10/2026,Conductivity,631,,,,,,
+POD #3,CDU-02,WK 40 2026,03/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 40 2026,03/10/2026,TDS,430,,,,,,
+POD #3,CDU-02,WK 40 2026,03/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 40 2026,03/10/2026,PH,8.55,,,,,,
+POD #3,CDU-03,WK 40 2026,03/10/2026,ATP Bacteria,152,,,,,,
+POD #3,CDU-03,WK 40 2026,03/10/2026,Conductivity,638,,,,,,
+POD #3,CDU-03,WK 40 2026,03/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 40 2026,03/10/2026,TDS,435,,,,,,
+POD #3,CDU-03,WK 40 2026,03/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 40 2026,03/10/2026,PH,8.57,,,,,,
+POD #3,CDU-04,WK 40 2026,03/10/2026,ATP Bacteria,945,Added 178ml of biocide at March 10,,,,,
+POD #3,CDU-04,WK 40 2026,03/10/2026,Conductivity,671,,,,,,
+POD #3,CDU-04,WK 40 2026,03/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-04,WK 40 2026,03/10/2026,TDS,457,,,,,,
+POD #3,CDU-04,WK 40 2026,03/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 40 2026,03/10/2026,PH,8.62,,,,,,
+POD #3,CDU-05,WK 40 2026,03/10/2026,ATP Bacteria,2,,,,,,
+POD #3,CDU-05,WK 40 2026,03/10/2026,Conductivity,683,,,,,,
+POD #3,CDU-05,WK 40 2026,03/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 40 2026,03/10/2026,TDS,465,,,,,,
+POD #3,CDU-05,WK 40 2026,03/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 40 2026,03/10/2026,PH,8.61,,,,,,
+POD #3,CDU-06,WK 40 2026,03/10/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-06,WK 40 2026,03/10/2026,Conductivity,654,,,,,,
+POD #3,CDU-06,WK 40 2026,03/10/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 40 2026,03/10/2026,TDS,446,,,,,,
+POD #3,CDU-06,WK 40 2026,03/10/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 12 2026,17/3/2026,PH,8.6,,,,,,
+POD #3,CDU-01,WK 12 2026,17/3/2026,ATP Bacteria,151,,,,,,
+POD #3,CDU-01,WK 12 2026,17/3/2026,Conductivity,674.4,,,,,,
+POD #3,CDU-01,WK 12 2026,17/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 12 2026,17/3/2026,TDS,459.2,,,,,,
+POD #3,CDU-01,WK 12 2026,17/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 12 2026,17/3/2026,PH,8.64,,,,,,
+POD #3,CDU-02,WK 12 2026,17/3/2026,ATP Bacteria,49,,,,,,
+POD #3,CDU-02,WK 12 2026,17/3/2026,Conductivity,644.9,,,,,,
+POD #3,CDU-02,WK 12 2026,17/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 12 2026,17/3/2026,TDS,439.6,,,,,,
+POD #3,CDU-02,WK 12 2026,17/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 12 2026,17/3/2026,PH,8.64,,,,,,
+POD #3,CDU-03,WK 12 2026,17/3/2026,ATP Bacteria,292,,,,,,
+POD #3,CDU-03,WK 12 2026,17/3/2026,Conductivity,674,,,,,,
+POD #3,CDU-03,WK 12 2026,17/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 12 2026,17/3/2026,TDS,458.9,,,,,,
+POD #3,CDU-03,WK 12 2026,17/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 12 2026,17/3/2026,PH,8.68,,,,,,
+POD #3,CDU-04,WK 12 2026,17/3/2026,ATP Bacteria,420,,,,,,
+POD #3,CDU-04,WK 12 2026,17/3/2026,Conductivity,676.1,,,,,,
+POD #3,CDU-04,WK 12 2026,17/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-04,WK 12 2026,17/3/2026,TDS,461.2,,,,,,
+POD #3,CDU-04,WK 12 2026,17/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 12 2026,17/3/2026,PH,8.7,,,,,,
+POD #3,CDU-05,WK 12 2026,17/3/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-05,WK 12 2026,17/3/2026,Conductivity,685.1,,,,,,
+POD #3,CDU-05,WK 12 2026,17/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 12 2026,17/3/2026,TDS,467.3,,,,,,
+POD #3,CDU-05,WK 12 2026,17/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 12 2026,17/3/2026,PH,8.73,,,,,,
+POD #3,CDU-06,WK 12 2026,17/3/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-06,WK 12 2026,17/3/2026,Conductivity,657.6,,,,,,
+POD #3,CDU-06,WK 12 2026,17/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 12 2026,17/3/2026,TDS,446.6,,,,,,
+POD #3,CDU-06,WK 12 2026,17/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 13 2026,24/3/2026,PH,8.68,,,,,,
+POD #3,CDU-01,WK 13 2026,24/3/2026,ATP Bacteria,144,,,,,,
+POD #3,CDU-01,WK 13 2026,24/3/2026,Conductivity,682.9,,,,,,
+POD #3,CDU-01,WK 13 2026,24/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 13 2026,24/3/2026,TDS,465.2,,,,,,
+POD #3,CDU-01,WK 13 2026,24/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 13 2026,24/3/2026,PH,8.62,,,,,,
+POD #3,CDU-02,WK 13 2026,24/3/2026,ATP Bacteria,152,,,,,,
+POD #3,CDU-02,WK 13 2026,24/3/2026,Conductivity,658.5,,,,,,
+POD #3,CDU-02,WK 13 2026,24/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 13 2026,24/3/2026,TDS,448.8,,,,,,
+POD #3,CDU-02,WK 13 2026,24/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 13 2026,24/3/2026,PH,8.59,,,,,,
+POD #3,CDU-03,WK 13 2026,24/3/2026,ATP Bacteria,211,,,,,,
+POD #3,CDU-03,WK 13 2026,24/3/2026,Conductivity,674.8,,,,,,
+POD #3,CDU-03,WK 13 2026,24/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 13 2026,24/3/2026,TDS,460.1,,,,,,
+POD #3,CDU-03,WK 13 2026,24/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 13 2026,24/3/2026,PH,8.57,,,,,,
+POD #3,CDU-04,WK 13 2026,24/3/2026,ATP Bacteria,71,,,,,,
+POD #3,CDU-04,WK 13 2026,24/3/2026,Conductivity,685.7,,,,,,
+POD #3,CDU-04,WK 13 2026,24/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-04,WK 13 2026,24/3/2026,TDS,467.6,,,,,,
+POD #3,CDU-04,WK 13 2026,24/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 13 2026,24/3/2026,PH,8.65,,,,,,
+POD #3,CDU-05,WK 13 2026,24/3/2026,ATP Bacteria,2,,,,,,
+POD #3,CDU-05,WK 13 2026,24/3/2026,Conductivity,688.1,,,,,,
+POD #3,CDU-05,WK 13 2026,24/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 13 2026,24/3/2026,TDS,468.6,,,,,,
+POD #3,CDU-05,WK 13 2026,24/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 13 2026,24/3/2026,PH,8.62,,,,,,
+POD #3,CDU-06,WK 13 2026,24/3/2026,ATP Bacteria,112,,,,,,
+POD #3,CDU-06,WK 13 2026,24/3/2026,Conductivity,669.9,,,,,,
+POD #3,CDU-06,WK 13 2026,24/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 13 2026,24/3/2026,TDS,456,,,,,,
+POD #3,CDU-06,WK 13 2026,24/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 14 2026,31/3/2026,PH,8.55,,,,,,
+POD #3,CDU-01,WK 14 2026,31/3/2026,ATP Bacteria,136,,,,,,
+POD #3,CDU-01,WK 14 2026,31/3/2026,Conductivity,688.6,,,,,,
+POD #3,CDU-01,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 14 2026,31/3/2026,TDS,466.8,,,,,,
+POD #3,CDU-01,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 14 2026,31/3/2026,PH,8.56,,,,,,
+POD #3,CDU-02,WK 14 2026,31/3/2026,ATP Bacteria,170,,,,,,
+POD #3,CDU-02,WK 14 2026,31/3/2026,Conductivity,667.9,,,,,,
+POD #3,CDU-02,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 14 2026,31/3/2026,TDS,453.3,,,,,,
+POD #3,CDU-02,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 14 2026,31/3/2026,PH,8.52,,,,,,
+POD #3,CDU-03,WK 14 2026,31/3/2026,ATP Bacteria,329,,,,,,
+POD #3,CDU-03,WK 14 2026,31/3/2026,Conductivity,689.2,,,,,,
+POD #3,CDU-03,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 14 2026,31/3/2026,TDS,468.4,,,,,,
+POD #3,CDU-03,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 14 2026,31/3/2026,PH,8.54,,,,,,
+POD #3,CDU-04,WK 14 2026,31/3/2026,ATP Bacteria,352,,,,,,
+POD #3,CDU-04,WK 14 2026,31/3/2026,Conductivity,684.6,,,,,,
+POD #3,CDU-04,WK 14 2026,31/3/2026,Turbidity,1,,,,,,
+POD #3,CDU-04,WK 14 2026,31/3/2026,TDS,457.6,,,,,,
+POD #3,CDU-04,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 14 2026,31/3/2026,PH,8.62,,,,,,
+POD #3,CDU-05,WK 14 2026,31/3/2026,ATP Bacteria,91,,,,,,
+POD #3,CDU-05,WK 14 2026,31/3/2026,Conductivity,868.1,,,,,,
+POD #3,CDU-05,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 14 2026,31/3/2026,TDS,466.4,,,,,,
+POD #3,CDU-05,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 14 2026,31/3/2026,PH,8.54,,,,,,
+POD #3,CDU-06,WK 14 2026,31/3/2026,ATP Bacteria,487,,,,,,
+POD #3,CDU-06,WK 14 2026,31/3/2026,Conductivity,686.5,,,,,,
+POD #3,CDU-06,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 14 2026,31/3/2026,TDS,466.5,,,,,,
+POD #3,CDU-06,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 14 2026,31/3/2026,PH,8.65,,,,,,
+POD #2,CDU-01,WK 14 2026,31/3/2026,ATP Bacteria,6,,,,,,
+POD #2,CDU-01,WK 14 2026,31/3/2026,Conductivity,661.9,,,,,,
+POD #2,CDU-01,WK 14 2026,31/3/2026,Turbidity,1,,,,,,
+POD #2,CDU-01,WK 14 2026,31/3/2026,TDS,447.9,,,,,,
+POD #2,CDU-01,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 14 2026,31/3/2026,PH,8.68,,,,,,
+POD #2,CDU-02,WK 14 2026,31/3/2026,ATP Bacteria,7,,,,,,
+POD #2,CDU-02,WK 14 2026,31/3/2026,Conductivity,662.1,,,,,,
+POD #2,CDU-02,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 14 2026,31/3/2026,TDS,445.1,,,,,,
+POD #2,CDU-02,WK 14 2026,31/3/2026,Total Suspended Solids,5,,,,,,
+POD #2,CDU-04,WK 14 2026,31/3/2026,PH,8.69,,,,,,
+POD #2,CDU-04,WK 14 2026,31/3/2026,ATP Bacteria,27,,,,,,
+POD #2,CDU-04,WK 14 2026,31/3/2026,Conductivity,668.1,,,,,,
+POD #2,CDU-04,WK 14 2026,31/3/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 14 2026,31/3/2026,TDS,451.7,,,,,,
+POD #2,CDU-04,WK 14 2026,31/3/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 16 2026,14/4/2026,PH,7.62,Miscalibrated equipment,,,,,
+POD #3,CDU-01,WK 16 2026,14/4/2026,ATP Bacteria,138,,,,,,
+POD #3,CDU-01,WK 16 2026,14/4/2026,Conductivity,716.9,,,,,,
+POD #3,CDU-01,WK 16 2026,14/4/2026,Turbidity,3,,,,,,
+POD #3,CDU-01,WK 16 2026,14/4/2026,TDS,490.4,,,,,,
+POD #3,CDU-01,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 16 2026,14/4/2026,PH,7.61,Miscalibrated equipment,,,,,
+POD #3,CDU-02,WK 16 2026,14/4/2026,ATP Bacteria,331,,,,,,
+POD #3,CDU-02,WK 16 2026,14/4/2026,Conductivity,697,,,,,,
+POD #3,CDU-02,WK 16 2026,14/4/2026,Turbidity,1,,,,,,
+POD #3,CDU-02,WK 16 2026,14/4/2026,TDS,477.2,,,,,,
+POD #3,CDU-02,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 16 2026,14/4/2026,PH,7.59,Miscalibrated equipment,,,,,
+POD #3,CDU-03,WK 16 2026,14/4/2026,ATP Bacteria,72,,,,,,
+POD #3,CDU-03,WK 16 2026,14/4/2026,Conductivity,711.8,,,,,,
+POD #3,CDU-03,WK 16 2026,14/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 16 2026,14/4/2026,TDS,487,,,,,,
+POD #3,CDU-03,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-04,WK 16 2026,14/4/2026,PH,7.64,Miscalibrated equipment,,,,,
+POD #3,CDU-04,WK 16 2026,14/4/2026,ATP Bacteria,122,,,,,,
+POD #3,CDU-04,WK 16 2026,14/4/2026,Conductivity,693.9,,,,,,
+POD #3,CDU-04,WK 16 2026,14/4/2026,Turbidity,2,,,,,,
+POD #3,CDU-04,WK 16 2026,14/4/2026,TDS,474.7,,,,,,
+POD #3,CDU-04,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 16 2026,14/4/2026,PH,7.67,Miscalibrated equipment,,,,,
+POD #3,CDU-05,WK 16 2026,14/4/2026,ATP Bacteria,40,,,,,,
+POD #3,CDU-05,WK 16 2026,14/4/2026,Conductivity,708.6,,,,,,
+POD #3,CDU-05,WK 16 2026,14/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 16 2026,14/4/2026,TDS,484,,,,,,
+POD #3,CDU-05,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 16 2026,14/4/2026,PH,7.63,Miscalibrated equipment,,,,,
+POD #3,CDU-06,WK 16 2026,14/4/2026,ATP Bacteria,318,,,,,,
+POD #3,CDU-06,WK 16 2026,14/4/2026,Conductivity,705.9,,,,,,
+POD #3,CDU-06,WK 16 2026,14/4/2026,Turbidity,1,,,,,,
+POD #3,CDU-06,WK 16 2026,14/4/2026,TDS,482.5,,,,,,
+POD #3,CDU-06,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 16 2026,14/4/2026,PH,7.84,Miscalibrated equipment,,,,,
+POD #2,CDU-01,WK 16 2026,14/4/2026,ATP Bacteria,0,,,,,,
+POD #2,CDU-01,WK 16 2026,14/4/2026,Conductivity,669.8,,,,,,
+POD #2,CDU-01,WK 16 2026,14/4/2026,Turbidity,4,,,,,,
+POD #2,CDU-01,WK 16 2026,14/4/2026,TDS,457.7,,,,,,
+POD #2,CDU-01,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 16 2026,14/4/2026,PH,7.74,Miscalibrated equipment,,,,,
+POD #2,CDU-02,WK 16 2026,14/4/2026,ATP Bacteria,263,,,,,,
+POD #2,CDU-02,WK 16 2026,14/4/2026,Conductivity,652.8,,,,,,
+POD #2,CDU-02,WK 16 2026,14/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 16 2026,14/4/2026,TDS,445.5,,,,,,
+POD #2,CDU-02,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 16 2026,14/4/2026,PH,7.74,Miscalibrated equipment,,,,,
+POD #2,CDU-04,WK 16 2026,14/4/2026,ATP Bacteria,714,,,,,,
+POD #2,CDU-04,WK 16 2026,14/4/2026,Conductivity,689.9,,,,,,
+POD #2,CDU-04,WK 16 2026,14/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 16 2026,14/4/2026,TDS,471.7,,,,,,
+POD #2,CDU-04,WK 16 2026,14/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 17 2026,21/4/2026,PH,7.18,Miscalibrated equipment,,,,,
+POD #3,CDU-01,WK 17 2026,21/4/2026,ATP Bacteria,786,,,,,,
+POD #3,CDU-01,WK 17 2026,21/4/2026,Conductivity,718.2,,,,,,
+POD #3,CDU-01,WK 17 2026,21/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 17 2026,21/4/2026,TDS,489.7,,,,,,
+POD #3,CDU-01,WK 17 2026,21/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 17 2026,21/4/2026,PH,7.17,Miscalibrated equipment,,,,,
+POD #3,CDU-02,WK 17 2026,21/4/2026,ATP Bacteria,1848,,,,,,
+POD #3,CDU-02,WK 17 2026,21/4/2026,Conductivity,709.9,,,,,,
+POD #3,CDU-02,WK 17 2026,21/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 17 2026,21/4/2026,TDS,486.6,,,,,,
+POD #3,CDU-02,WK 17 2026,21/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 17 2026,21/4/2026,PH,7.18,Miscalibrated equipment,,,,,
+POD #3,CDU-03,WK 17 2026,21/4/2026,ATP Bacteria,1877,,,,,,
+POD #3,CDU-03,WK 17 2026,21/4/2026,Conductivity,717.7,,,,,,
+POD #3,CDU-03,WK 17 2026,21/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 17 2026,21/4/2026,TDS,489.8,,,,,,
+POD #3,CDU-03,WK 17 2026,21/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 17 2026,21/4/2026,PH,7.22,Miscalibrated equipment,,,,,
+POD #3,CDU-05,WK 17 2026,21/4/2026,ATP Bacteria,93,,,,,,
+POD #3,CDU-05,WK 17 2026,21/4/2026,Conductivity,722.2,,,,,,
+POD #3,CDU-05,WK 17 2026,21/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 17 2026,21/4/2026,TDS,492.9,,,,,,
+POD #3,CDU-05,WK 17 2026,21/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 17 2026,21/4/2026,PH,7.28,Miscalibrated equipment,,,,,
+POD #3,CDU-06,WK 17 2026,21/4/2026,ATP Bacteria,2871,,,,,,
+POD #3,CDU-06,WK 17 2026,21/4/2026,Conductivity,717.9,,,,,,
+POD #3,CDU-06,WK 17 2026,21/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 17 2026,21/4/2026,TDS,490.8,,,,,,
+POD #3,CDU-06,WK 17 2026,21/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 17 2026,21/4/2026,PH,7.29,Miscalibrated equipment,,,,,
+POD #2,CDU-02,WK 17 2026,21/4/2026,ATP Bacteria,366,,,,,,
+POD #2,CDU-02,WK 17 2026,21/4/2026,Conductivity,669.7,,,,,,
+POD #2,CDU-02,WK 17 2026,21/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 17 2026,21/4/2026,TDS,455,,,,,,
+POD #2,CDU-02,WK 17 2026,21/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 18 2026,27/4/2026,PH,7.22,Miscalibrated equipment,,,,,
+POD #3,CDU-01,WK 18 2026,27/4/2026,ATP Bacteria,2987,Added 178ml of biocide at April 27,,,,,
+POD #3,CDU-01,WK 18 2026,27/4/2026,Conductivity,717,,,,,,
+POD #3,CDU-01,WK 18 2026,27/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 18 2026,27/4/2026,TDS,490.2,,,,,,
+POD #3,CDU-01,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 18 2026,27/4/2026,PH,7.22,,,,,,
+POD #3,CDU-02,WK 18 2026,27/4/2026,ATP Bacteria,962,,,,,,
+POD #3,CDU-02,WK 18 2026,27/4/2026,Conductivity,711,,,,,,
+POD #3,CDU-02,WK 18 2026,27/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 18 2026,27/4/2026,TDS,486,,,,,,
+POD #3,CDU-02,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 18 2026,27/4/2026,PH,7.2,Miscalibrated equipment,,,,,
+POD #3,CDU-03,WK 18 2026,27/4/2026,ATP Bacteria,3712,Added 178ml of biocide at April 27,,,,,
+POD #3,CDU-03,WK 18 2026,27/4/2026,Conductivity,717.3,,,,,,
+POD #3,CDU-03,WK 18 2026,27/4/2026,Turbidity,3,,,,,,
+POD #3,CDU-03,WK 18 2026,27/4/2026,TDS,489.5,,,,,,
+POD #3,CDU-03,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 18 2026,27/4/2026,PH,7.26,Miscalibrated equipment,,,,,
+POD #3,CDU-05,WK 18 2026,27/4/2026,ATP Bacteria,2646,Added 178ml of biocide at April 27,,,,,
+POD #3,CDU-05,WK 18 2026,27/4/2026,Conductivity,718.3,,,,,,
+POD #3,CDU-05,WK 18 2026,27/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 18 2026,27/4/2026,TDS,490.6,,,,,,
+POD #3,CDU-05,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 18 2026,27/4/2026,PH,7.2,Miscalibrated equipment,,,,,
+POD #3,CDU-06,WK 18 2026,27/4/2026,ATP Bacteria,3844,Added 178ml of biocide at April 27,,,,,
+POD #3,CDU-06,WK 18 2026,27/4/2026,Conductivity,718.1,,,,,,
+POD #3,CDU-06,WK 18 2026,27/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 18 2026,27/4/2026,TDS,489.7,,,,,,
+POD #3,CDU-06,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 18 2026,27/4/2026,PH,7.36,Miscalibrated equipment,,,,,
+POD #2,CDU-01,WK 18 2026,27/4/2026,ATP Bacteria,171,,,,,,
+POD #2,CDU-01,WK 18 2026,27/4/2026,Conductivity,663.6,,,,,,
+POD #2,CDU-01,WK 18 2026,27/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 18 2026,27/4/2026,TDS,451.6,,,,,,
+POD #2,CDU-01,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 18 2026,27/4/2026,PH,7.38,Miscalibrated equipment,,,,,
+POD #2,CDU-02,WK 18 2026,27/4/2026,ATP Bacteria,401,,,,,,
+POD #2,CDU-02,WK 18 2026,27/4/2026,Conductivity,692.7,,,,,,
+POD #2,CDU-02,WK 18 2026,27/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 18 2026,27/4/2026,TDS,477.9,,,,,,
+POD #2,CDU-02,WK 18 2026,27/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 18 2026,29/4/2026,PH,7.82,Miscalibrated equipment,,,,,
+POD #3,CDU-01,WK 18 2026,29/4/2026,ATP Bacteria,1194,,,,,,
+POD #3,CDU-01,WK 18 2026,29/4/2026,Conductivity,729.7,,,,,,
+POD #3,CDU-01,WK 18 2026,29/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 18 2026,29/4/2026,TDS,497.4,,,,,,
+POD #3,CDU-01,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 18 2026,29/4/2026,PH,7.86,Miscalibrated equipment,,,,,
+POD #3,CDU-02,WK 18 2026,29/4/2026,ATP Bacteria,916,,,,,,
+POD #3,CDU-02,WK 18 2026,29/4/2026,Conductivity,712.9,,,,,,
+POD #3,CDU-02,WK 18 2026,29/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 18 2026,29/4/2026,TDS,485.5,,,,,,
+POD #3,CDU-02,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 18 2026,29/4/2026,PH,7.81,Miscalibrated equipment,,,,,
+POD #3,CDU-03,WK 18 2026,29/4/2026,ATP Bacteria,1700,,,,,,
+POD #3,CDU-03,WK 18 2026,29/4/2026,Conductivity,735.2,,,,,,
+POD #3,CDU-03,WK 18 2026,29/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 18 2026,29/4/2026,TDS,501.7,,,,,,
+POD #3,CDU-03,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 18 2026,29/4/2026,PH,7.88,Miscalibrated equipment,,,,,
+POD #3,CDU-05,WK 18 2026,29/4/2026,ATP Bacteria,1504,,,,,,
+POD #3,CDU-05,WK 18 2026,29/4/2026,Conductivity,729.1,,,,,,
+POD #3,CDU-05,WK 18 2026,29/4/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 18 2026,29/4/2026,TDS,497.3,,,,,,
+POD #3,CDU-05,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 18 2026,29/4/2026,PH,7.8,Miscalibrated equipment,,,,,
+POD #3,CDU-06,WK 18 2026,29/4/2026,ATP Bacteria,3050,,,,,,
+POD #3,CDU-06,WK 18 2026,29/4/2026,Conductivity,738.3,,,,,,
+POD #3,CDU-06,WK 18 2026,29/4/2026,Turbidity,2,,,,,,
+POD #3,CDU-06,WK 18 2026,29/4/2026,TDS,503.6,,,,,,
+POD #3,CDU-06,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 18 2026,29/4/2026,PH,7.95,Miscalibrated equipment,,,,,
+POD #2,CDU-01,WK 18 2026,29/4/2026,ATP Bacteria,250,,,,,,
+POD #2,CDU-01,WK 18 2026,29/4/2026,Conductivity,643.8,,,,,,
+POD #2,CDU-01,WK 18 2026,29/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 18 2026,29/4/2026,TDS,438,,,,,,
+POD #2,CDU-01,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 18 2026,29/4/2026,PH,7.92,Miscalibrated equipment,,,,,
+POD #2,CDU-02,WK 18 2026,29/4/2026,ATP Bacteria,320,,,,,,
+POD #2,CDU-02,WK 18 2026,29/4/2026,Conductivity,674.2,,,,,,
+POD #2,CDU-02,WK 18 2026,29/4/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 18 2026,29/4/2026,TDS,458.7,,,,,,
+POD #2,CDU-02,WK 18 2026,29/4/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 14 2026,05/04/2026,ATP Bacteria,957,,,,,,
+POD #3,CDU-03,WK 14 2026,05/04/2026,ATP Bacteria,1100,,,,,,
+POD #3,CDU-05,WK 14 2026,05/04/2026,ATP Bacteria,1036,,,,,,
+POD #3,CDU-06,WK 14 2026,05/04/2026,ATP Bacteria,2125,,,,,,
+POD #3,CDU-01,WK 19 2026,05/05/2026,PH,7.3,Miscalibrated equipment,,,,,
+POD #3,CDU-01,WK 19 2026,05/05/2026,ATP Bacteria,663,,,,,,
+POD #3,CDU-01,WK 19 2026,05/05/2026,Conductivity,724.7,,,,,,
+POD #3,CDU-01,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 19 2026,05/05/2026,TDS,493.4,,,,,,
+POD #3,CDU-01,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 19 2026,05/05/2026,PH,7.2,Miscalibrated equipment,,,,,
+POD #3,CDU-02,WK 19 2026,05/05/2026,ATP Bacteria,2001.0,,,,,,
+POD #3,CDU-02,WK 19 2026,05/05/2026,Conductivity,709.6,,,,,,
+POD #3,CDU-02,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 19 2026,05/05/2026,TDS,483.1,,,,,,
+POD #3,CDU-02,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 19 2026,05/05/2026,PH,7.3,Miscalibrated equipment,,,,,
+POD #3,CDU-03,WK 19 2026,05/05/2026,ATP Bacteria,1107,,,,,,
+POD #3,CDU-03,WK 19 2026,05/05/2026,Conductivity,720.5,,,,,,
+POD #3,CDU-03,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 19 2026,05/05/2026,TDS,490.3,,,,,,
+POD #3,CDU-03,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 19 2026,05/05/2026,PH,7.3,Miscalibrated equipment,,,,,
+POD #3,CDU-05,WK 19 2026,05/05/2026,ATP Bacteria,1400,,,,,,
+POD #3,CDU-05,WK 19 2026,05/05/2026,Conductivity,736.6,,,,,,
+POD #3,CDU-05,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 19 2026,05/05/2026,TDS,502.1,,,,,,
+POD #3,CDU-05,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 19 2026,05/05/2026,PH,7.2,Miscalibrated equipment,,,,,
+POD #3,CDU-06,WK 19 2026,05/05/2026,ATP Bacteria,1184,,,,,,
+POD #3,CDU-06,WK 19 2026,05/05/2026,Conductivity,740.4,,,,,,
+POD #3,CDU-06,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 19 2026,05/05/2026,TDS,505.1,,,,,,
+POD #3,CDU-06,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 19 2026,05/05/2026,PH,7.4,Miscalibrated equipment,,,,,
+POD #2,CDU-01,WK 19 2026,05/05/2026,ATP Bacteria,691,,,,,,
+POD #2,CDU-01,WK 19 2026,05/05/2026,Conductivity,649.7,,,,,,
+POD #2,CDU-01,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 19 2026,05/05/2026,TDS,441.6,,,,,,
+POD #2,CDU-01,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 19 2026,05/05/2026,PH,7.4,Miscalibrated equipment,,,,,
+POD #2,CDU-02,WK 19 2026,05/05/2026,ATP Bacteria,1100,,,,,,
+POD #2,CDU-02,WK 19 2026,05/05/2026,Conductivity,678.6,,,,,,
+POD #2,CDU-02,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 19 2026,05/05/2026,TDS,461.4,,,,,,
+POD #2,CDU-02,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 19 2026,05/05/2026,PH,8.15,Miscalibrated equipment,,,,,
+POD #2,CDU-03,WK 19 2026,05/05/2026,ATP Bacteria,74,,,,,,
+POD #2,CDU-03,WK 19 2026,05/05/2026,Conductivity,780.2,,,,,,
+POD #2,CDU-03,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 19 2026,05/05/2026,TDS,530.1,,,,,,
+POD #2,CDU-03,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 19 2026,05/05/2026,PH,7.5,Miscalibrated equipment,,,,,
+POD #2,CDU-04,WK 19 2026,05/05/2026,ATP Bacteria,232.0,,,,,,
+POD #2,CDU-04,WK 19 2026,05/05/2026,Conductivity,695.7,,,,,,
+POD #2,CDU-04,WK 19 2026,05/05/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 19 2026,05/05/2026,TDS,474,,,,,,
+POD #2,CDU-04,WK 19 2026,05/05/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 27 2026,05/07/2026,ATP Bacteria,2738.0,,,,,,
+POD #3,CDU-03,WK 27 2026,05/07/2026,ATP Bacteria,1207.0,,,,,,
+POD #3,CDU-05,WK 32 2026,05/08/2026,ATP Bacteria,2782.0,Added 178ml of biocide at May 8,,,,,
+POD #3,CDU-01,WK 49 2026,05/12/2026,PH,8.63,The equipment is calibrated ✅,,,,,
+POD #3,CDU-01,WK 49 2026,05/12/2026,ATP Bacteria,1478,,,,,,
+POD #3,CDU-01,WK 49 2026,05/12/2026,Conductivity,706.5,,,,,,
+POD #3,CDU-01,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 49 2026,05/12/2026,TDS,486.2,,,,,,
+POD #3,CDU-01,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 49 2026,05/12/2026,PH,8.63,,,,,,
+POD #3,CDU-02,WK 49 2026,05/12/2026,ATP Bacteria,1234,,,,,,
+POD #3,CDU-02,WK 49 2026,05/12/2026,Conductivity,700,,,,,,
+POD #3,CDU-02,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 49 2026,05/12/2026,TDS,479.2,,,,,,
+POD #3,CDU-02,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 49 2026,05/12/2026,PH,8.63,,,,,,
+POD #3,CDU-03,WK 49 2026,05/12/2026,ATP Bacteria,1856,,,,,,
+POD #3,CDU-03,WK 49 2026,05/12/2026,Conductivity,699.7,,,,,,
+POD #3,CDU-03,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 49 2026,05/12/2026,TDS,477.2,,,,,,
+POD #3,CDU-03,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 49 2026,05/12/2026,PH,8.68,,,,,,
+POD #3,CDU-05,WK 49 2026,05/12/2026,ATP Bacteria,2144,,,,,,
+POD #3,CDU-05,WK 49 2026,05/12/2026,Conductivity,734.8,,,,,,
+POD #3,CDU-05,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 49 2026,05/12/2026,TDS,501.6,,,,,,
+POD #3,CDU-05,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 49 2026,05/12/2026,PH,8.65,,,,,,
+POD #3,CDU-06,WK 49 2026,05/12/2026,ATP Bacteria,1411,,,,,,
+POD #3,CDU-06,WK 49 2026,05/12/2026,Conductivity,712.1,,,,,,
+POD #3,CDU-06,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 49 2026,05/12/2026,TDS,485.9,,,,,,
+POD #3,CDU-06,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 49 2026,05/12/2026,PH,8.76,,,,,,
+POD #2,CDU-01,WK 49 2026,05/12/2026,ATP Bacteria,343,,,,,,
+POD #2,CDU-01,WK 49 2026,05/12/2026,Conductivity,664.5,,,,,,
+POD #2,CDU-01,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 49 2026,05/12/2026,TDS,453.6,,,,,,
+POD #2,CDU-01,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 49 2026,05/12/2026,PH,8.71,,,,,,
+POD #2,CDU-02,WK 49 2026,05/12/2026,ATP Bacteria,222,,,,,,
+POD #2,CDU-02,WK 49 2026,05/12/2026,Conductivity,680.8,,,,,,
+POD #2,CDU-02,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 49 2026,05/12/2026,TDS,463.9,,,,,,
+POD #2,CDU-02,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 49 2026,05/12/2026,PH,9.38,,,,,,
+POD #2,CDU-03,WK 49 2026,05/12/2026,ATP Bacteria,71,,,,,,
+POD #2,CDU-03,WK 49 2026,05/12/2026,Conductivity,775.1,,,,,,
+POD #2,CDU-03,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 49 2026,05/12/2026,TDS,528.8,,,,,,
+POD #2,CDU-03,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 49 2026,05/12/2026,PH,8.84,,,,,,
+POD #2,CDU-04,WK 49 2026,05/12/2026,ATP Bacteria,600,,,,,,
+POD #2,CDU-04,WK 49 2026,05/12/2026,Conductivity,668.3,,,,,,
+POD #2,CDU-04,WK 49 2026,05/12/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 49 2026,05/12/2026,TDS,454.9,,,,,,
+POD #2,CDU-04,WK 49 2026,05/12/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 21 2026,20/5/2026,PH,8.07,,,,,,
+POD #3,CDU-01,WK 21 2026,20/5/2026,ATP Bacteria,1904,,,,,,
+POD #3,CDU-01,WK 21 2026,20/5/2026,Conductivity,709.5,,,,,,
+POD #3,CDU-01,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 21 2026,20/5/2026,TDS,487.3,,,,,,
+POD #3,CDU-01,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 21 2026,20/5/2026,PH,8.02,,,,,,
+POD #3,CDU-02,WK 21 2026,20/5/2026,ATP Bacteria,2641,Added 178ml of biocide at May 20,,,,,
+POD #3,CDU-02,WK 21 2026,20/5/2026,Conductivity,698.5,,,,,,
+POD #3,CDU-02,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 21 2026,20/5/2026,TDS,480.5,,,,,,
+POD #3,CDU-02,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 21 2026,20/5/2026,PH,8.05,,,,,,
+POD #3,CDU-03,WK 21 2026,20/5/2026,ATP Bacteria,2476,Added 178ml of biocide at May 20,,,,,
+POD #3,CDU-03,WK 21 2026,20/5/2026,Conductivity,707.3,,,,,,
+POD #3,CDU-03,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 21 2026,20/5/2026,TDS,487.6,,,,,,
+POD #3,CDU-03,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 21 2026,20/5/2026,PH,8.05,,,,,,
+POD #3,CDU-05,WK 21 2026,20/5/2026,ATP Bacteria,1258,,,,,,
+POD #3,CDU-05,WK 21 2026,20/5/2026,Conductivity,736.2,,,,,,
+POD #3,CDU-05,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 21 2026,20/5/2026,TDS,507.6,,,,,,
+POD #3,CDU-05,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 21 2026,20/5/2026,PH,8.02,,,,,,
+POD #3,CDU-06,WK 21 2026,20/5/2026,ATP Bacteria,1903,,,,,,
+POD #3,CDU-06,WK 21 2026,20/5/2026,Conductivity,711.3,,,,,,
+POD #3,CDU-06,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 21 2026,20/5/2026,TDS,489.9,,,,,,
+POD #3,CDU-06,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 21 2026,20/5/2026,PH,8.05,,,,,,
+POD #2,CDU-01,WK 21 2026,20/5/2026,ATP Bacteria,2669,Added 178ml of biocide at May 20,,,,,
+POD #2,CDU-01,WK 21 2026,20/5/2026,Conductivity,663.1,,,,,,
+POD #2,CDU-01,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 21 2026,20/5/2026,TDS,455.9,,,,,,
+POD #2,CDU-01,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 21 2026,20/5/2026,PH,8,,,,,,
+POD #2,CDU-02,WK 21 2026,20/5/2026,ATP Bacteria,281,,,,,,
+POD #2,CDU-02,WK 21 2026,20/5/2026,Conductivity,681.5,,,,,,
+POD #2,CDU-02,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 21 2026,20/5/2026,TDS,468,,,,,,
+POD #2,CDU-02,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 21 2026,20/5/2026,PH,8.8,,,,,,
+POD #2,CDU-03,WK 21 2026,20/5/2026,ATP Bacteria,467,,,,,,
+POD #2,CDU-03,WK 21 2026,20/5/2026,Conductivity,767.6,,,,,,
+POD #2,CDU-03,WK 21 2026,20/5/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 21 2026,20/5/2026,TDS,527.1,,,,,,
+POD #2,CDU-03,WK 21 2026,20/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 22 2026,26/5/2026,PH,8.05,,,,,,
+POD #3,CDU-01,WK 22 2026,26/5/2026,ATP Bacteria,1536,,,,,,
+POD #3,CDU-01,WK 22 2026,26/5/2026,Conductivity,708.9,,,,,,
+POD #3,CDU-01,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 22 2026,26/5/2026,TDS,486.9,,,,,,
+POD #3,CDU-01,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 22 2026,26/5/2026,PH,8.03,,,,,,
+POD #3,CDU-02,WK 22 2026,26/5/2026,ATP Bacteria,2466,,,,,,
+POD #3,CDU-02,WK 22 2026,26/5/2026,Conductivity,712.8,,,,,,
+POD #3,CDU-02,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 22 2026,26/5/2026,TDS,490.5,,,,,,
+POD #3,CDU-02,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 22 2026,26/5/2026,PH,8.1,,,,,,
+POD #3,CDU-03,WK 22 2026,26/5/2026,ATP Bacteria,2088,,,,,,
+POD #3,CDU-03,WK 22 2026,26/5/2026,Conductivity,714.7,,,,,,
+POD #3,CDU-03,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 22 2026,26/5/2026,TDS,491.4,,,,,,
+POD #3,CDU-03,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 22 2026,26/5/2026,PH,8.04,,,,,,
+POD #3,CDU-05,WK 22 2026,26/5/2026,ATP Bacteria,444,,,,,,
+POD #3,CDU-05,WK 22 2026,26/5/2026,Conductivity,719.9,,,,,,
+POD #3,CDU-05,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 22 2026,26/5/2026,TDS,495.7,,,,,,
+POD #3,CDU-05,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 22 2026,26/5/2026,PH,8.03,,,,,,
+POD #3,CDU-06,WK 22 2026,26/5/2026,ATP Bacteria,1197,,,,,,
+POD #3,CDU-06,WK 22 2026,26/5/2026,Conductivity,708.9,,,,,,
+POD #3,CDU-06,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 22 2026,26/5/2026,TDS,487.8,,,,,,
+POD #3,CDU-06,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 22 2026,26/5/2026,PH,8.15,,,,,,
+POD #2,CDU-01,WK 22 2026,26/5/2026,ATP Bacteria,1949,,,,,,
+POD #2,CDU-01,WK 22 2026,26/5/2026,Conductivity,668.6,,,,,,
+POD #2,CDU-01,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 22 2026,26/5/2026,TDS,472.2,,,,,,
+POD #2,CDU-01,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 22 2026,26/5/2026,PH,8.05,,,,,,
+POD #2,CDU-02,WK 22 2026,26/5/2026,ATP Bacteria,84,,,,,,
+POD #2,CDU-02,WK 22 2026,26/5/2026,Conductivity,697.8,,,,,,
+POD #2,CDU-02,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 22 2026,26/5/2026,TDS,479,,,,,,
+POD #2,CDU-02,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 22 2026,26/5/2026,PH,8.87,,,,,,
+POD #2,CDU-03,WK 22 2026,26/5/2026,ATP Bacteria,256,,,,,,
+POD #2,CDU-03,WK 22 2026,26/5/2026,Conductivity,770.3,,,,,,
+POD #2,CDU-03,WK 22 2026,26/5/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 22 2026,26/5/2026,TDS,529.5,,,,,,
+POD #2,CDU-03,WK 22 2026,26/5/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 10 2026,06/03/2026,PH,8.31,,,,,,
+POD #3,CDU-01,WK 10 2026,06/03/2026,ATP Bacteria,2669,Added 178ml of biocide at Jun 05,,,,,
+POD #3,CDU-01,WK 10 2026,06/03/2026,Conductivity,719.6,,,,,,
+POD #3,CDU-01,WK 10 2026,06/03/2026,Turbidity,5,,,,,,
+POD #3,CDU-01,WK 10 2026,06/03/2026,TDS,477.7,,,,,,
+POD #3,CDU-01,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 10 2026,06/03/2026,PH,8.29,,,,,,
+POD #3,CDU-02,WK 10 2026,06/03/2026,ATP Bacteria,2691,Added 178ml of biocide at Jun 05,,,,,
+POD #3,CDU-02,WK 10 2026,06/03/2026,Conductivity,716.8,,,,,,
+POD #3,CDU-02,WK 10 2026,06/03/2026,Turbidity,5,,,,,,
+POD #3,CDU-02,WK 10 2026,06/03/2026,TDS,493.3,,,,,,
+POD #3,CDU-02,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 10 2026,06/03/2026,PH,8.65,,,,,,
+POD #3,CDU-03,WK 10 2026,06/03/2026,ATP Bacteria,2856,Added 178ml of biocide at Jun 05,,,,,
+POD #3,CDU-03,WK 10 2026,06/03/2026,Conductivity,726,,,,,,
+POD #3,CDU-03,WK 10 2026,06/03/2026,Turbidity,4,,,,,,
+POD #3,CDU-03,WK 10 2026,06/03/2026,TDS,499.7,,,,,,
+POD #3,CDU-03,WK 10 2026,06/03/2026,Total Suspended Solids,3,,,,,,
+POD #3,CDU-05,WK 10 2026,06/03/2026,PH,8.31,,,,,,
+POD #3,CDU-05,WK 10 2026,06/03/2026,ATP Bacteria,929,,,,,,
+POD #3,CDU-05,WK 10 2026,06/03/2026,Conductivity,724.2,,,,,,
+POD #3,CDU-05,WK 10 2026,06/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 10 2026,06/03/2026,TDS,498.6,,,,,,
+POD #3,CDU-05,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 10 2026,06/03/2026,PH,8.28,,,,,,
+POD #3,CDU-06,WK 10 2026,06/03/2026,ATP Bacteria,1440,,,,,,
+POD #3,CDU-06,WK 10 2026,06/03/2026,Conductivity,712.7,,,,,,
+POD #3,CDU-06,WK 10 2026,06/03/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 10 2026,06/03/2026,TDS,490.6,,,,,,
+POD #3,CDU-06,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 10 2026,06/03/2026,PH,8.23,,,,,,
+POD #2,CDU-01,WK 10 2026,06/03/2026,ATP Bacteria,1508,,,,,,
+POD #2,CDU-01,WK 10 2026,06/03/2026,Conductivity,696.3,,,,,,
+POD #2,CDU-01,WK 10 2026,06/03/2026,Turbidity,4,,,,,,
+POD #2,CDU-01,WK 10 2026,06/03/2026,TDS,453.6,,,,,,
+POD #2,CDU-01,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 10 2026,06/03/2026,PH,8.23,,,,,,
+POD #2,CDU-02,WK 10 2026,06/03/2026,ATP Bacteria,51,,,,,,
+POD #2,CDU-02,WK 10 2026,06/03/2026,Conductivity,713.2,,,,,,
+POD #2,CDU-02,WK 10 2026,06/03/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 10 2026,06/03/2026,TDS,490.6,,,,,,
+POD #2,CDU-02,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 10 2026,06/03/2026,PH,8.65,,,,,,
+POD #2,CDU-03,WK 10 2026,06/03/2026,ATP Bacteria,210,,,,,,
+POD #2,CDU-03,WK 10 2026,06/03/2026,Conductivity,766.4,,,,,,
+POD #2,CDU-03,WK 10 2026,06/03/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 10 2026,06/03/2026,TDS,530.8,,,,,,
+POD #2,CDU-03,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 10 2026,06/03/2026,PH,8.4,,,,,,
+POD #2,CDU-04,WK 10 2026,06/03/2026,ATP Bacteria,447,,,,,,
+POD #2,CDU-04,WK 10 2026,06/03/2026,Conductivity,701.8,,,,,,
+POD #2,CDU-04,WK 10 2026,06/03/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 10 2026,06/03/2026,TDS,482.8,,,,,,
+POD #2,CDU-04,WK 10 2026,06/03/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 36 2026,06/09/2026,PH,8.32,,,,,,
+POD #3,CDU-01,WK 36 2026,06/09/2026,ATP Bacteria,2369,Se inicia control en bidones ,,,,,
+POD #3,CDU-01,WK 36 2026,06/09/2026,Conductivity,719.2,,,,,,
+POD #3,CDU-01,WK 36 2026,06/09/2026,Turbidity,2,,,,,,
+POD #3,CDU-01,WK 36 2026,06/09/2026,TDS,493.5,,,,,,
+POD #3,CDU-01,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 36 2026,06/09/2026,PH,8.35,,,,,,
+POD #3,CDU-02,WK 36 2026,06/09/2026,ATP Bacteria,874,Se inicia control en bidones ,,,,,
+POD #3,CDU-02,WK 36 2026,06/09/2026,Conductivity,726,,,,,,
+POD #3,CDU-02,WK 36 2026,06/09/2026,Turbidity,3,,,,,,
+POD #3,CDU-02,WK 36 2026,06/09/2026,TDS,499.2,,,,,,
+POD #3,CDU-02,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 36 2026,06/09/2026,PH,8.56,,,,,,
+POD #3,CDU-03,WK 36 2026,06/09/2026,ATP Bacteria,2779,Se inicia control en bidones ,,,,,
+POD #3,CDU-03,WK 36 2026,06/09/2026,Conductivity,729.2,,,,,,
+POD #3,CDU-03,WK 36 2026,06/09/2026,Turbidity,3,,,,,,
+POD #3,CDU-03,WK 36 2026,06/09/2026,TDS,501.2,,,,,,
+POD #3,CDU-03,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 36 2026,06/09/2026,PH,8.52,,,,,,
+POD #3,CDU-05,WK 36 2026,06/09/2026,ATP Bacteria,1564,Se inicia control en bidones ,,,,,
+POD #3,CDU-05,WK 36 2026,06/09/2026,Conductivity,718.4,,,,,,
+POD #3,CDU-05,WK 36 2026,06/09/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 36 2026,06/09/2026,TDS,494.1,,,,,,
+POD #3,CDU-05,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 36 2026,06/09/2026,PH,8.52,,,,,,
+POD #3,CDU-06,WK 36 2026,06/09/2026,ATP Bacteria,2523,Se inicia control en bidones ,,,,,
+POD #3,CDU-06,WK 36 2026,06/09/2026,Conductivity,710.5,,,,,,
+POD #3,CDU-06,WK 36 2026,06/09/2026,Turbidity,2,,,,,,
+POD #3,CDU-06,WK 36 2026,06/09/2026,TDS,488.8,,,,,,
+POD #3,CDU-06,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 36 2026,06/09/2026,PH,8.43,,,,,,
+POD #2,CDU-01,WK 36 2026,06/09/2026,ATP Bacteria,3521,Se inicia control en bidones, added 178 ml of biocide,,,,,
+POD #2,CDU-01,WK 36 2026,06/09/2026,Conductivity,710.4,,,,,,
+POD #2,CDU-01,WK 36 2026,06/09/2026,Turbidity,5,,,,,,
+POD #2,CDU-01,WK 36 2026,06/09/2026,TDS,487.5,,,,,,
+POD #2,CDU-01,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 36 2026,06/09/2026,PH,8.38,,,,,,
+POD #2,CDU-02,WK 36 2026,06/09/2026,ATP Bacteria,90,Se inicia control en bidones ,,,,,
+POD #2,CDU-02,WK 36 2026,06/09/2026,Conductivity,714.2,,,,,,
+POD #2,CDU-02,WK 36 2026,06/09/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 36 2026,06/09/2026,TDS,490.2,,,,,,
+POD #2,CDU-02,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 36 2026,06/09/2026,PH,8.94,,,,,,
+POD #2,CDU-03,WK 36 2026,06/09/2026,ATP Bacteria,121,Se inicia control en bidones ,,,,,
+POD #2,CDU-03,WK 36 2026,06/09/2026,Conductivity,768.1,,,,,,
+POD #2,CDU-03,WK 36 2026,06/09/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 36 2026,06/09/2026,TDS,530.2,,,,,,
+POD #2,CDU-03,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 36 2026,06/09/2026,PH,8.45,,,,,,
+POD #2,CDU-04,WK 36 2026,06/09/2026,ATP Bacteria,901,Se inicia control en bidones ,,,,,
+POD #2,CDU-04,WK 36 2026,06/09/2026,Conductivity,713.2,,,,,,
+POD #2,CDU-04,WK 36 2026,06/09/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 36 2026,06/09/2026,TDS,489.1,,,,,,
+POD #2,CDU-04,WK 36 2026,06/09/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 25 2026,16/6/2026,PH,8.03,,,,,,
+POD #3,CDU-01,WK 25 2026,16/6/2026,ATP Bacteria,1308,,,,,,
+POD #3,CDU-01,WK 25 2026,16/6/2026,Conductivity,728.7,,,,,,
+POD #3,CDU-01,WK 25 2026,16/6/2026,Turbidity,4,,,,,,
+POD #3,CDU-01,WK 25 2026,16/6/2026,TDS,501.5,,,,,,
+POD #3,CDU-01,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 25 2026,16/6/2026,PH,8.12,,,,,,
+POD #3,CDU-02,WK 25 2026,16/6/2026,ATP Bacteria,2100,,,,,,
+POD #3,CDU-02,WK 25 2026,16/6/2026,Conductivity,729.9,,,,,,
+POD #3,CDU-02,WK 25 2026,16/6/2026,Turbidity,3,,,,,,
+POD #3,CDU-02,WK 25 2026,16/6/2026,TDS,503.3,,,,,,
+POD #3,CDU-02,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 25 2026,16/6/2026,PH,8.22,,,,,,
+POD #3,CDU-03,WK 25 2026,16/6/2026,ATP Bacteria,2180,,,,,,
+POD #3,CDU-03,WK 25 2026,16/6/2026,Conductivity,730.9,,,,,,
+POD #3,CDU-03,WK 25 2026,16/6/2026,Turbidity,6,,,,,,
+POD #3,CDU-03,WK 25 2026,16/6/2026,TDS,503.6,,,,,,
+POD #3,CDU-03,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 25 2026,16/6/2026,PH,8.07,,,,,,
+POD #3,CDU-05,WK 25 2026,16/6/2026,ATP Bacteria,572,,,,,,
+POD #3,CDU-05,WK 25 2026,16/6/2026,Conductivity,733.2,,,,,,
+POD #3,CDU-05,WK 25 2026,16/6/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 25 2026,16/6/2026,TDS,505.3,,,,,,
+POD #3,CDU-05,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 25 2026,16/6/2026,PH,8.1,,,,,,
+POD #3,CDU-06,WK 25 2026,16/6/2026,ATP Bacteria,2047,,,,,,
+POD #3,CDU-06,WK 25 2026,16/6/2026,Conductivity,719.5,,,,,,
+POD #3,CDU-06,WK 25 2026,16/6/2026,Turbidity,2,,,,,,
+POD #3,CDU-06,WK 25 2026,16/6/2026,TDS,495.6,,,,,,
+POD #3,CDU-06,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 25 2026,16/6/2026,PH,8.03,,,,,,
+POD #2,CDU-01,WK 25 2026,16/6/2026,ATP Bacteria,1070,,,,,,
+POD #2,CDU-01,WK 25 2026,16/6/2026,Conductivity,725.5,,,,,,
+POD #2,CDU-01,WK 25 2026,16/6/2026,Turbidity,4,,,,,,
+POD #2,CDU-01,WK 25 2026,16/6/2026,TDS,499.7,,,,,,
+POD #2,CDU-01,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 25 2026,16/6/2026,PH,8.1,,,,,,
+POD #2,CDU-02,WK 25 2026,16/6/2026,ATP Bacteria,35,,,,,,
+POD #2,CDU-02,WK 25 2026,16/6/2026,Conductivity,724.1,,,,,,
+POD #2,CDU-02,WK 25 2026,16/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 25 2026,16/6/2026,TDS,498.3,,,,,,
+POD #2,CDU-02,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 25 2026,16/6/2026,PH,8.95,,,,,,
+POD #2,CDU-03,WK 25 2026,16/6/2026,ATP Bacteria,98,,,,,,
+POD #2,CDU-03,WK 25 2026,16/6/2026,Conductivity,780.7,,,,,,
+POD #2,CDU-03,WK 25 2026,16/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 25 2026,16/6/2026,TDS,537.3,,,,,,
+POD #2,CDU-03,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 25 2026,16/6/2026,PH,8.3,,,,,,
+POD #2,CDU-04,WK 25 2026,16/6/2026,ATP Bacteria,409,,,,,,
+POD #2,CDU-04,WK 25 2026,16/6/2026,Conductivity,717.8,,,,,,
+POD #2,CDU-04,WK 25 2026,16/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 25 2026,16/6/2026,TDS,493.7,,,,,,
+POD #2,CDU-04,WK 25 2026,16/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 26 2026,23/6/2026,PH,8.63,,,,,,
+POD #3,CDU-01,WK 26 2026,23/6/2026,ATP Bacteria,1100,,,,,,
+POD #3,CDU-01,WK 26 2026,23/6/2026,Conductivity,713.1,,,,,,
+POD #3,CDU-01,WK 26 2026,23/6/2026,Turbidity,3,,,,,,
+POD #3,CDU-01,WK 26 2026,23/6/2026,TDS,489.2,,,,,,
+POD #3,CDU-01,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 26 2026,23/6/2026,PH,8.21,,,,,,
+POD #3,CDU-02,WK 26 2026,23/6/2026,ATP Bacteria,786,,,,,,
+POD #3,CDU-02,WK 26 2026,23/6/2026,Conductivity,720.3,,,,,,
+POD #3,CDU-02,WK 26 2026,23/6/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 26 2026,23/6/2026,TDS,495.5,,,,,,
+POD #3,CDU-02,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 26 2026,23/6/2026,PH,8.35,,,,,,
+POD #3,CDU-03,WK 26 2026,23/6/2026,ATP Bacteria,2101,,,,,,
+POD #3,CDU-03,WK 26 2026,23/6/2026,Conductivity,704.9,,,,,,
+POD #3,CDU-03,WK 26 2026,23/6/2026,Turbidity,4,,,,,,
+POD #3,CDU-03,WK 26 2026,23/6/2026,TDS,484.8,,,,,,
+POD #3,CDU-03,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 26 2026,23/6/2026,PH,8.38,,,,,,
+POD #3,CDU-05,WK 26 2026,23/6/2026,ATP Bacteria,576,,,,,,
+POD #3,CDU-05,WK 26 2026,23/6/2026,Conductivity,700.1,,,,,,
+POD #3,CDU-05,WK 26 2026,23/6/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 26 2026,23/6/2026,TDS,485.6,,,,,,
+POD #3,CDU-05,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 26 2026,23/6/2026,PH,8.56,,,,,,
+POD #3,CDU-06,WK 26 2026,23/6/2026,ATP Bacteria,2004,,,,,,
+POD #3,CDU-06,WK 26 2026,23/6/2026,Conductivity,711.8,,,,,,
+POD #3,CDU-06,WK 26 2026,23/6/2026,Turbidity,2,,,,,,
+POD #3,CDU-06,WK 26 2026,23/6/2026,TDS,489.9,,,,,,
+POD #3,CDU-06,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 26 2026,23/6/2026,PH,8.26,,,,,,
+POD #2,CDU-01,WK 26 2026,23/6/2026,ATP Bacteria,968,,,,,,
+POD #2,CDU-01,WK 26 2026,23/6/2026,Conductivity,707.8,,,,,,
+POD #2,CDU-01,WK 26 2026,23/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 26 2026,23/6/2026,TDS,486.6,,,,,,
+POD #2,CDU-01,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 26 2026,23/6/2026,PH,8.25,,,,,,
+POD #2,CDU-02,WK 26 2026,23/6/2026,ATP Bacteria,30,,,,,,
+POD #2,CDU-02,WK 26 2026,23/6/2026,Conductivity,721.1,,,,,,
+POD #2,CDU-02,WK 26 2026,23/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 26 2026,23/6/2026,TDS,495.7,,,,,,
+POD #2,CDU-02,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 26 2026,23/6/2026,PH,9.15,,,,,,
+POD #2,CDU-03,WK 26 2026,23/6/2026,ATP Bacteria,103,,,,,,
+POD #2,CDU-03,WK 26 2026,23/6/2026,Conductivity,783.2,,,,,,
+POD #2,CDU-03,WK 26 2026,23/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 26 2026,23/6/2026,TDS,539.3,,,,,,
+POD #2,CDU-03,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 26 2026,23/6/2026,PH,8.35,,,,,,
+POD #2,CDU-04,WK 26 2026,23/6/2026,ATP Bacteria,778,,,,,,
+POD #2,CDU-04,WK 26 2026,23/6/2026,Conductivity,704.8,,,,,,
+POD #2,CDU-04,WK 26 2026,23/6/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 26 2026,23/6/2026,TDS,484.3,,,,,,
+POD #2,CDU-04,WK 26 2026,23/6/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 2 2026,07/01/2026,PH,8.61,,,,,,
+POD #3,CDU-01,WK 2 2026,07/01/2026,ATP Bacteria,565,,,,,,
+POD #3,CDU-01,WK 2 2026,07/01/2026,Conductivity,736.9,,,,,,
+POD #3,CDU-01,WK 2 2026,07/01/2026,Turbidity,4,,,,,,
+POD #3,CDU-01,WK 2 2026,07/01/2026,TDS,506.2,,,,,,
+POD #3,CDU-01,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 2 2026,07/01/2026,PH,8.52,,,,,,
+POD #3,CDU-02,WK 2 2026,07/01/2026,ATP Bacteria,539,,,,,,
+POD #3,CDU-02,WK 2 2026,07/01/2026,Conductivity,730.9,,,,,,
+POD #3,CDU-02,WK 2 2026,07/01/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 2 2026,07/01/2026,TDS,502.7,,,,,,
+POD #3,CDU-02,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 2 2026,07/01/2026,PH,8.68,,,,,,
+POD #3,CDU-03,WK 2 2026,07/01/2026,ATP Bacteria,1719,,,,,,
+POD #3,CDU-03,WK 2 2026,07/01/2026,Conductivity,737.6,,,,,,
+POD #3,CDU-03,WK 2 2026,07/01/2026,Turbidity,2,,,,,,
+POD #3,CDU-03,WK 2 2026,07/01/2026,TDS,506.8,,,,,,
+POD #3,CDU-03,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 2 2026,07/01/2026,PH,8.7,,,,,,
+POD #3,CDU-05,WK 2 2026,07/01/2026,ATP Bacteria,1099,,,,,,
+POD #3,CDU-05,WK 2 2026,07/01/2026,Conductivity,763.5,,,,,,
+POD #3,CDU-05,WK 2 2026,07/01/2026,Turbidity,1,,,,,,
+POD #3,CDU-05,WK 2 2026,07/01/2026,TDS,526.1,,,,,,
+POD #3,CDU-05,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 2 2026,07/01/2026,PH,8.58,,,,,,
+POD #3,CDU-06,WK 2 2026,07/01/2026,ATP Bacteria,2509,,,,,,
+POD #3,CDU-06,WK 2 2026,07/01/2026,Conductivity,728.2,,,,,,
+POD #3,CDU-06,WK 2 2026,07/01/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 2 2026,07/01/2026,TDS,500.4,,,,,,
+POD #3,CDU-06,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 2 2026,07/01/2026,PH,8.62,,,,,,
+POD #2,CDU-01,WK 2 2026,07/01/2026,ATP Bacteria,1414,,,,,,
+POD #2,CDU-01,WK 2 2026,07/01/2026,Conductivity,726,,,,,,
+POD #2,CDU-01,WK 2 2026,07/01/2026,Turbidity,1,,,,,,
+POD #2,CDU-01,WK 2 2026,07/01/2026,TDS,498.1,,,,,,
+POD #2,CDU-01,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 2 2026,07/01/2026,PH,8.55,,,,,,
+POD #2,CDU-02,WK 2 2026,07/01/2026,ATP Bacteria,29,,,,,,
+POD #2,CDU-02,WK 2 2026,07/01/2026,Conductivity,739.4,,,,,,
+POD #2,CDU-02,WK 2 2026,07/01/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 2 2026,07/01/2026,TDS,507.6,,,,,,
+POD #2,CDU-02,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 2 2026,07/01/2026,PH,8.98,,,,,,
+POD #2,CDU-03,WK 2 2026,07/01/2026,ATP Bacteria,102,,,,,,
+POD #2,CDU-03,WK 2 2026,07/01/2026,Conductivity,785.9,,,,,,
+POD #2,CDU-03,WK 2 2026,07/01/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 2 2026,07/01/2026,TDS,539.8,,,,,,
+POD #2,CDU-03,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 2 2026,07/01/2026,PH,8.66,,,,,,
+POD #2,CDU-04,WK 2 2026,07/01/2026,ATP Bacteria,784,,,,,,
+POD #2,CDU-04,WK 2 2026,07/01/2026,Conductivity,740.7,,,,,,
+POD #2,CDU-04,WK 2 2026,07/01/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 2 2026,07/01/2026,TDS,508.6,,,,,,
+POD #2,CDU-04,WK 2 2026,07/01/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 28 2026,07/07/2026,PH,8.65,,,,,,
+POD #3,CDU-01,WK 28 2026,07/07/2026,ATP Bacteria,242,,,,,,
+POD #3,CDU-01,WK 28 2026,07/07/2026,Conductivity,738.1,,,,,,
+POD #3,CDU-01,WK 28 2026,07/07/2026,Turbidity,2,,,,,,
+POD #3,CDU-01,WK 28 2026,07/07/2026,TDS,506.2,,,,,,
+POD #3,CDU-01,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 28 2026,07/07/2026,PH,8.54,,,,,,
+POD #3,CDU-02,WK 28 2026,07/07/2026,ATP Bacteria,629,,,,,,
+POD #3,CDU-02,WK 28 2026,07/07/2026,Conductivity,728.5,,,,,,
+POD #3,CDU-02,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 28 2026,07/07/2026,TDS,499.6,,,,,,
+POD #3,CDU-02,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 28 2026,07/07/2026,PH,8.69,,,,,,
+POD #3,CDU-03,WK 28 2026,07/07/2026,ATP Bacteria,71,,,,,,
+POD #3,CDU-03,WK 28 2026,07/07/2026,Conductivity,725.8,,,,,,
+POD #3,CDU-03,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 28 2026,07/07/2026,TDS,497.6,,,,,,
+POD #3,CDU-03,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 28 2026,07/07/2026,PH,8.68,,,,,,
+POD #3,CDU-05,WK 28 2026,07/07/2026,ATP Bacteria,352,,,,,,
+POD #3,CDU-05,WK 28 2026,07/07/2026,Conductivity,742.3,,,,,,
+POD #3,CDU-05,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 28 2026,07/07/2026,TDS,509.8,,,,,,
+POD #3,CDU-05,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 28 2026,07/07/2026,PH,8.61,,,,,,
+POD #3,CDU-06,WK 28 2026,07/07/2026,ATP Bacteria,1547,,,,,,
+POD #3,CDU-06,WK 28 2026,07/07/2026,Conductivity,741.3,,,,,,
+POD #3,CDU-06,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 28 2026,07/07/2026,TDS,509.1,,,,,,
+POD #3,CDU-06,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 28 2026,07/07/2026,PH,8.64,,,,,,
+POD #2,CDU-01,WK 28 2026,07/07/2026,ATP Bacteria,794,,,,,,
+POD #2,CDU-01,WK 28 2026,07/07/2026,Conductivity,733.9,,,,,,
+POD #2,CDU-01,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 28 2026,07/07/2026,TDS,503.7,,,,,,
+POD #2,CDU-01,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 28 2026,07/07/2026,PH,8.57,,,,,,
+POD #2,CDU-02,WK 28 2026,07/07/2026,ATP Bacteria,164,,,,,,
+POD #2,CDU-02,WK 28 2026,07/07/2026,Conductivity,722.6,,,,,,
+POD #2,CDU-02,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 28 2026,07/07/2026,TDS,495.2,,,,,,
+POD #2,CDU-02,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 28 2026,07/07/2026,PH,9.01,,,,,,
+POD #2,CDU-03,WK 28 2026,07/07/2026,ATP Bacteria,66,,,,,,
+POD #2,CDU-03,WK 28 2026,07/07/2026,Conductivity,798.4,,,,,,
+POD #2,CDU-03,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 28 2026,07/07/2026,TDS,547.9,,,,,,
+POD #2,CDU-03,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 28 2026,07/07/2026,PH,8.66,,,,,,
+POD #2,CDU-04,WK 28 2026,07/07/2026,ATP Bacteria,415,,,,,,
+POD #2,CDU-04,WK 28 2026,07/07/2026,Conductivity,725.6,,,,,,
+POD #2,CDU-04,WK 28 2026,07/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 28 2026,07/07/2026,TDS,496.9,,,,,,
+POD #2,CDU-04,WK 28 2026,07/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 29 2026,14/07/2026,PH,8.61,,,,,,
+POD #3,CDU-01,WK 29 2026,14/07/2026,ATP Bacteria,636,,,,,,
+POD #3,CDU-01,WK 29 2026,14/07/2026,Conductivity,690.5,,,,,,
+POD #3,CDU-01,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 29 2026,14/07/2026,TDS,472.6,,,,,,
+POD #3,CDU-01,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 29 2026,14/07/2026,PH,8.55,,,,,,
+POD #3,CDU-02,WK 29 2026,14/07/2026,ATP Bacteria,211,,,,,,
+POD #3,CDU-02,WK 29 2026,14/07/2026,Conductivity,701.4,,,,,,
+POD #3,CDU-02,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 29 2026,14/07/2026,TDS,481.4,,,,,,
+POD #3,CDU-02,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 29 2026,14/07/2026,PH,8.63,,,,,,
+POD #3,CDU-03,WK 29 2026,14/07/2026,ATP Bacteria,736,,,,,,
+POD #3,CDU-03,WK 29 2026,14/07/2026,Conductivity,690.5,,,,,,
+POD #3,CDU-03,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 29 2026,14/07/2026,TDS,473.3,,,,,,
+POD #3,CDU-03,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 29 2026,14/07/2026,PH,8.62,,,,,,
+POD #3,CDU-05,WK 29 2026,14/07/2026,ATP Bacteria,220,,,,,,
+POD #3,CDU-05,WK 29 2026,14/07/2026,Conductivity,700.9,,,,,,
+POD #3,CDU-05,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 29 2026,14/07/2026,TDS,480.7,,,,,,
+POD #3,CDU-05,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 29 2026,14/07/2026,PH,8.6,,,,,,
+POD #3,CDU-06,WK 29 2026,14/07/2026,ATP Bacteria,593,,,,,,
+POD #3,CDU-06,WK 29 2026,14/07/2026,Conductivity,706.6,,,,,,
+POD #3,CDU-06,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 29 2026,14/07/2026,TDS,485.2,,,,,,
+POD #3,CDU-06,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 29 2026,14/07/2026,PH,8.6,,,,,,
+POD #2,CDU-01,WK 29 2026,14/07/2026,ATP Bacteria,656,,,,,,
+POD #2,CDU-01,WK 29 2026,14/07/2026,Conductivity,680,,,,,,
+POD #2,CDU-01,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 29 2026,14/07/2026,TDS,466.1,,,,,,
+POD #2,CDU-01,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 29 2026,14/07/2026,PH,8.57,,,,,,
+POD #2,CDU-02,WK 29 2026,14/07/2026,ATP Bacteria,21,,,,,,
+POD #2,CDU-02,WK 29 2026,14/07/2026,Conductivity,685.9,,,,,,
+POD #2,CDU-02,WK 29 2026,14/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 29 2026,14/07/2026,TDS,469.4,,,,,,
+POD #2,CDU-02,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 29 2026,14/07/2026,PH,9.04,,,,,,
+POD #2,CDU-03,WK 29 2026,14/07/2026,ATP Bacteria,112,,,,,,
+POD #2,CDU-03,WK 29 2026,14/07/2026,Conductivity,773.8,,,,,,
+POD #2,CDU-03,WK 29 2026,14/07/2026,Turbidity,3,,,,,,
+POD #2,CDU-03,WK 29 2026,14/07/2026,TDS,533.4,,,,,,
+POD #2,CDU-03,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 29 2026,14/07/2026,PH,8.63,,,,,,
+POD #2,CDU-04,WK 29 2026,14/07/2026,ATP Bacteria,445,,,,,,
+POD #2,CDU-04,WK 29 2026,14/07/2026,Conductivity,683,,,,,,
+POD #2,CDU-04,WK 29 2026,14/07/2026,Turbidity,1,,,,,,
+POD #2,CDU-04,WK 29 2026,14/07/2026,TDS,467.6,,,,,,
+POD #2,CDU-04,WK 29 2026,14/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 30 2026,23/07/2026,PH,8.63,,,,,,
+POD #3,CDU-01,WK 30 2026,23/07/2026,ATP Bacteria,474,,,,,,
+POD #3,CDU-01,WK 30 2026,23/07/2026,Conductivity,657.6,,,,,,
+POD #3,CDU-01,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 30 2026,23/07/2026,TDS,449,,,,,,
+POD #3,CDU-01,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 30 2026,23/07/2026,PH,8.55,,,,,,
+POD #3,CDU-02,WK 30 2026,23/07/2026,ATP Bacteria,148,,,,,,
+POD #3,CDU-02,WK 30 2026,23/07/2026,Conductivity,669.8,,,,,,
+POD #3,CDU-02,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 30 2026,23/07/2026,TDS,458,,,,,,
+POD #3,CDU-02,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 30 2026,23/07/2026,PH,8.65,,,,,,
+POD #3,CDU-03,WK 30 2026,23/07/2026,ATP Bacteria,854,,,,,,
+POD #3,CDU-03,WK 30 2026,23/07/2026,Conductivity,657.9,,,,,,
+POD #3,CDU-03,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 30 2026,23/07/2026,TDS,450.01,,,,,,
+POD #3,CDU-03,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 30 2026,23/07/2026,PH,8.61,,,,,,
+POD #3,CDU-05,WK 30 2026,23/07/2026,ATP Bacteria,385,,,,,,
+POD #3,CDU-05,WK 30 2026,23/07/2026,Conductivity,662.7,,,,,,
+POD #3,CDU-05,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 30 2026,23/07/2026,TDS,453.4,,,,,,
+POD #3,CDU-05,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 30 2026,23/07/2026,PH,8.6,,,,,,
+POD #3,CDU-06,WK 30 2026,23/07/2026,ATP Bacteria,721,,,,,,
+POD #3,CDU-06,WK 30 2026,23/07/2026,Conductivity,675.8,,,,,,
+POD #3,CDU-06,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 23 2026,23/07/2026,TDS,462.1,,,,,,
+POD #3,CDU-06,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 30 2026,23/07/2026,PH,8.65,,,,,,
+POD #2,CDU-01,WK 30 2026,23/07/2026,ATP Bacteria,253,,,,,,
+POD #2,CDU-01,WK 30 2026,23/07/2026,Conductivity,645.2,,,,,,
+POD #2,CDU-01,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 30 2026,23/07/2026,TDS,439.5,,,,,,
+POD #2,CDU-01,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 30 2026,23/07/2026,PH,8.57,,,,,,
+POD #2,CDU-02,WK 30 2026,23/07/2026,ATP Bacteria,35,,,,,,
+POD #2,CDU-02,WK 30 2026,23/07/2026,Conductivity,658.9,,,,,,
+POD #2,CDU-02,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 30 2026,23/07/2026,TDS,449.6,,,,,,
+POD #2,CDU-02,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 30 2026,23/07/2026,PH,9.01,,,,,,
+POD #2,CDU-03,WK 30 2026,23/07/2026,ATP Bacteria,283,,,,,,
+POD #2,CDU-03,WK 30 2026,23/07/2026,Conductivity,769.1,,,,,,
+POD #2,CDU-03,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 30 2026,23/07/2026,TDS,528.9,,,,,,
+POD #2,CDU-03,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 30 2026,23/07/2026,PH,8.61,,,,,,
+POD #2,CDU-04,WK 30 2026,23/07/2026,ATP Bacteria,619,,,,,,
+POD #2,CDU-04,WK 30 2026,23/07/2026,Conductivity,658.8,,,,,,
+POD #2,CDU-04,WK 30 2026,23/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 30 2026,23/07/2026,TDS,449.6,,,,,,
+POD #2,CDU-04,WK 30 2026,23/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 31 2026,28/07/2026,PH,8.73,,,,,,
+POD #3,CDU-01,WK 31 2026,28/07/2026,ATP Bacteria,0,,,,,,
+POD #3,CDU-01,WK 31 2026,28/07/2026,Conductivity,713.9,,,,,,
+POD #3,CDU-01,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 31 2026,28/07/2026,TDS,489.4,,,,,,
+POD #3,CDU-01,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 31 2026,28/07/2026,PH,8.64,,,,,,
+POD #3,CDU-02,WK 31 2026,28/07/2026,ATP Bacteria,439,,,,,,
+POD #3,CDU-02,WK 31 2026,28/07/2026,Conductivity,670.1,,,,,,
+POD #3,CDU-02,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 31 2026,28/07/2026,TDS,458.9,,,,,,
+POD #3,CDU-02,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 31 2026,28/07/2026,PH,8.63,,,,,,
+POD #3,CDU-03,WK 31 2026,28/07/2026,ATP Bacteria,815,,,,,,
+POD #3,CDU-03,WK 31 2026,28/07/2026,Conductivity,654.2,,,,,,
+POD #3,CDU-03,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 31 2026,28/07/2026,TDS,447.3,,,,,,
+POD #3,CDU-03,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 31 2026,28/07/2026,PH,8.72,,,,,,
+POD #3,CDU-05,WK 31 2026,28/07/2026,ATP Bacteria,44,,,,,,
+POD #3,CDU-05,WK 31 2026,28/07/2026,Conductivity,683,,,,,,
+POD #3,CDU-05,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 31 2026,28/07/2026,TDS,467.8,,,,,,
+POD #3,CDU-05,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 31 2026,28/07/2026,PH,8.63,,,,,,
+POD #3,CDU-06,WK 31 2026,28/07/2026,ATP Bacteria,725,,,,,,
+POD #3,CDU-06,WK 31 2026,28/07/2026,Conductivity,685.1,,,,,,
+POD #3,CDU-06,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 31 2026,28/07/2026,TDS,468.9,,,,,,
+POD #3,CDU-06,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 31 2026,28/07/2026,PH,8.63,,,,,,
+POD #2,CDU-01,WK 31 2026,28/07/2026,ATP Bacteria,1022,,,,,,
+POD #2,CDU-01,WK 31 2026,28/07/2026,Conductivity,661.5,,,,,,
+POD #2,CDU-01,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 31 2026,28/07/2026,TDS,452.1,,,,,,
+POD #2,CDU-01,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 31 2026,28/07/2026,PH,8.69,,,,,,
+POD #2,CDU-02,WK 31 2026,28/07/2026,ATP Bacteria,41,,,,,,
+POD #2,CDU-02,WK 31 2026,28/07/2026,Conductivity,673.3,,,,,,
+POD #2,CDU-02,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 31 2026,28/07/2026,TDS,460.5,,,,,,
+POD #2,CDU-02,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 31 2026,28/07/2026,PH,9,,,,,,
+POD #2,CDU-03,WK 31 2026,28/07/2026,ATP Bacteria,218,,,,,,
+POD #2,CDU-03,WK 31 2026,28/07/2026,Conductivity,768.4,,,,,,
+POD #2,CDU-03,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 31 2026,28/07/2026,TDS,530.3,,,,,,
+POD #2,CDU-03,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 31 2026,28/07/2026,PH,8.72,,,,,,
+POD #2,CDU-04,WK 31 2026,28/07/2026,ATP Bacteria,0,,,,,,
+POD #2,CDU-04,WK 31 2026,28/07/2026,Conductivity,709.6,,,,,,
+POD #2,CDU-04,WK 31 2026,28/07/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 31 2026,28/07/2026,TDS,486.3,,,,,,
+POD #2,CDU-04,WK 31 2026,28/07/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 32 2026,04/08/2026,PH,8.76,,,,,,
+POD #3,CDU-01,WK 32 2026,04/08/2026,ATP Bacteria,85,,,,,,
+POD #3,CDU-01,WK 32 2026,04/08/2026,Conductivity,665.7,,,,,,
+POD #3,CDU-01,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 32 2026,04/08/2026,TDS,455.7,,,,,,
+POD #3,CDU-01,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 32 2026,04/08/2026,PH,8.63,,,,,,
+POD #3,CDU-02,WK 32 2026,04/08/2026,ATP Bacteria,350,,,,,,
+POD #3,CDU-02,WK 32 2026,04/08/2026,Conductivity,657.8,,,,,,
+POD #3,CDU-02,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 32 2026,04/08/2026,TDS,450.2,,,,,,
+POD #3,CDU-02,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 32 2026,04/08/2026,PH,8.58,,,,,,
+POD #3,CDU-03,WK 32 2026,04/08/2026,ATP Bacteria,900,,,,,,
+POD #3,CDU-03,WK 32 2026,04/08/2026,Conductivity,641.8,,,,,,
+POD #3,CDU-03,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 32 2026,04/08/2026,TDS,438.4,,,,,,
+POD #3,CDU-03,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 32 2026,04/08/2026,PH,8.68,,,,,,
+POD #3,CDU-05,WK 32 2026,04/08/2026,ATP Bacteria,731,,,,,,
+POD #3,CDU-05,WK 32 2026,04/08/2026,Conductivity,654.6,,,,,,
+POD #3,CDU-05,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 32 2026,04/08/2026,TDS,447.8,,,,,,
+POD #3,CDU-05,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 32 2026,04/08/2026,PH,8.62,,,,,,
+POD #3,CDU-06,WK 32 2026,04/08/2026,ATP Bacteria,673,,,,,,
+POD #3,CDU-06,WK 32 2026,04/08/2026,Conductivity,659.4,,,,,,
+POD #3,CDU-06,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 32 2026,04/08/2026,TDS,451,,,,,,
+POD #3,CDU-06,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 32 2026,04/08/2026,PH,8.58,,,,,,
+POD #2,CDU-01,WK 32 2026,04/08/2026,ATP Bacteria,1770,,,,,,
+POD #2,CDU-01,WK 32 2026,04/08/2026,Conductivity,654.3,,,,,,
+POD #2,CDU-01,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 32 2026,04/08/2026,TDS,446.3,,,,,,
+POD #2,CDU-01,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 32 2026,04/08/2026,PH,8.64,,,,,,
+POD #2,CDU-02,WK 32 2026,04/08/2026,ATP Bacteria,184,,,,,,
+POD #2,CDU-02,WK 32 2026,04/08/2026,Conductivity,652.6,,,,,,
+POD #2,CDU-02,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 32 2026,04/08/2026,TDS,445.6,,,,,,
+POD #2,CDU-02,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 32 2026,04/08/2026,PH,8.93,,,,,,
+POD #2,CDU-03,WK 32 2026,04/08/2026,ATP Bacteria,383,,,,,,
+POD #2,CDU-03,WK 32 2026,04/08/2026,Conductivity,768.8,,,,,,
+POD #2,CDU-03,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 32 2026,04/08/2026,TDS,529.9,,,,,,
+POD #2,CDU-03,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 32 2026,04/08/2026,PH,8.74,,,,,,
+POD #2,CDU-04,WK 32 2026,04/08/2026,ATP Bacteria,1093,,,,,,
+POD #2,CDU-04,WK 32 2026,04/08/2026,Conductivity,655.7,,,,,,
+POD #2,CDU-04,WK 32 2026,04/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 32 2026,04/08/2026,TDS,448.2,,,,,,
+POD #2,CDU-04,WK 32 2026,04/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-01,WK 33 2026,11/08/2026,PH,8.66,,,,,,
+POD #3,CDU-01,WK 33 2026,11/08/2026,ATP Bacteria,469,,,,,,
+POD #3,CDU-01,WK 33 2026,11/08/2026,Conductivity,658.6,,,,,,
+POD #3,CDU-01,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-01,WK 33 2026,11/08/2026,TDS,450.4,,,,,,
+POD #3,CDU-01,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-02,WK 33 2026,11/08/2026,PH,8.6,,,,,,
+POD #3,CDU-02,WK 33 2026,11/08/2026,ATP Bacteria,776,,,,,,
+POD #3,CDU-02,WK 33 2026,11/08/2026,Conductivity,656.5,,,,,,
+POD #3,CDU-02,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-02,WK 33 2026,11/08/2026,TDS,448.9,,,,,,
+POD #3,CDU-02,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-03,WK 33 2026,11/08/2026,PH,8.58,,,,,,
+POD #3,CDU-03,WK 33 2026,11/08/2026,ATP Bacteria,262,,,,,,
+POD #3,CDU-03,WK 33 2026,11/08/2026,Conductivity,643.6,,,,,,
+POD #3,CDU-03,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-03,WK 33 2026,11/08/2026,TDS,440,,,,,,
+POD #3,CDU-03,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-05,WK 33 2026,11/08/2026,PH,8.65,,,,,,
+POD #3,CDU-05,WK 33 2026,11/08/2026,ATP Bacteria,754,,,,,,
+POD #3,CDU-05,WK 33 2026,11/08/2026,Conductivity,649.3,,,,,,
+POD #3,CDU-05,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-05,WK 33 2026,11/08/2026,TDS,444,,,,,,
+POD #3,CDU-05,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #3,CDU-06,WK 33 2026,11/08/2026,PH,8.6,,,,,,
+POD #3,CDU-06,WK 33 2026,11/08/2026,ATP Bacteria,1193,,,,,,
+POD #3,CDU-06,WK 33 2026,11/08/2026,Conductivity,654,,,,,,
+POD #3,CDU-06,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #3,CDU-06,WK 33 2026,11/08/2026,TDS,447.2,,,,,,
+POD #3,CDU-06,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-01,WK 33 2026,11/08/2026,PH,8.57,,,,,,
+POD #2,CDU-01,WK 33 2026,11/08/2026,ATP Bacteria,624,,,,,,
+POD #2,CDU-01,WK 33 2026,11/08/2026,Conductivity,651.8,,,,,,
+POD #2,CDU-01,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-01,WK 33 2026,11/08/2026,TDS,445.5,,,,,,
+POD #2,CDU-01,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-02,WK 33 2026,11/08/2026,PH,8.62,,,,,,
+POD #2,CDU-02,WK 33 2026,11/08/2026,ATP Bacteria,40,,,,,,
+POD #2,CDU-02,WK 33 2026,11/08/2026,Conductivity,651,,,,,,
+POD #2,CDU-02,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-02,WK 33 2026,11/08/2026,TDS,445,,,,,,
+POD #2,CDU-02,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-03,WK 33 2026,11/08/2026,PH,8.86,,,,,,
+POD #2,CDU-03,WK 33 2026,11/08/2026,ATP Bacteria,346,,,,,,
+POD #2,CDU-03,WK 33 2026,11/08/2026,Conductivity,762.3,,,,,,
+POD #2,CDU-03,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-03,WK 33 2026,11/08/2026,TDS,524.4,,,,,,
+POD #2,CDU-03,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #2,CDU-04,WK 33 2026,11/08/2026,PH,8.66,,,,,,
+POD #2,CDU-04,WK 33 2026,11/08/2026,ATP Bacteria,883,,,,,,
+POD #2,CDU-04,WK 33 2026,11/08/2026,Conductivity,650,,,,,,
+POD #2,CDU-04,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #2,CDU-04,WK 33 2026,11/08/2026,TDS,444.4,,,,,,
+POD #2,CDU-04,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #1,CDU-01,WK 33 2026,11/08/2026,PH,8.75,,,,,,
+POD #1,CDU-01,WK 33 2026,11/08/2026,ATP Bacteria,200,,,,,,
+POD #1,CDU-01,WK 33 2026,11/08/2026,Conductivity,576.2,,,,,,
+POD #1,CDU-01,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #1,CDU-01,WK 33 2026,11/08/2026,TDS,391,,,,,,
+POD #1,CDU-01,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #1,CDU-02,WK 33 2026,11/08/2026,PH,8.61,,,,,,
+POD #1,CDU-02,WK 33 2026,11/08/2026,ATP Bacteria,54,,,,,,
+POD #1,CDU-02,WK 33 2026,11/08/2026,Conductivity,632.7,,,,,,
+POD #1,CDU-02,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #1,CDU-02,WK 33 2026,11/08/2026,TDS,432.1,,,,,,
+POD #1,CDU-02,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #1,CDU-03,WK 33 2026,11/08/2026,PH,8.89,,,,,,
+POD #1,CDU-03,WK 33 2026,11/08/2026,ATP Bacteria,9,,,,,,
+POD #1,CDU-03,WK 33 2026,11/08/2026,Conductivity,639.2,,,,,,
+POD #1,CDU-03,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #1,CDU-03,WK 33 2026,11/08/2026,TDS,436.6,,,,,,
+POD #1,CDU-03,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,
+POD #1,CDU-04,WK 33 2026,11/08/2026,PH,8.8,,,,,,
+POD #1,CDU-04,WK 33 2026,11/08/2026,ATP Bacteria,633,,,,,,
+POD #1,CDU-04,WK 33 2026,11/08/2026,Conductivity,605.9,,,,,,
+POD #1,CDU-04,WK 33 2026,11/08/2026,Turbidity,0,,,,,,
+POD #1,CDU-04,WK 33 2026,11/08/2026,TDS,413.2,,,,,,
+POD #1,CDU-04,WK 33 2026,11/08/2026,Total Suspended Solids,0,,,,,,`;
+
+// Parameter Standard Configurations and Limits
+const PARAMETER_CONFIGS = {
+  'Bacteria': {
+    key: 'Bacteria',
+    aliases: ['ATP Bacteria', 'Bacteria', 'ATP', 'Bacterias'],
+    label: 'Bacteria < 1500 RLU',
+    shortLabel: 'Bacteria',
+    unit: 'RLU',
+    lowerLimit: 0,
+    upperLimit: 1500,
+    hasLowerLimit: false,
+    hasUpperLimit: true,
+    decimals: 0,
+    description: 'Conteo microbiológico de ATP en RLU. Límite máximo 1500 RLU.'
+  },
+  'PH': {
+    key: 'PH',
+    aliases: ['PH', 'pH', 'Ph'],
+    label: 'PH 8 – 9.5',
+    shortLabel: 'PH',
+    unit: '',
+    lowerLimit: 8.0,
+    upperLimit: 9.5,
+    hasLowerLimit: true,
+    hasUpperLimit: true,
+    decimals: 2,
+    description: 'Potencial de hidrógeno (Acidez/Alcalinidad). Rango óptimo 8.0 a 9.5.'
+  },
+  'Conductivity': {
+    key: 'Conductivity',
+    aliases: ['Conductivity', 'Conductividad', 'Cond'],
+    label: 'Conductividad 600 - 850 μS',
+    shortLabel: 'Conductividad',
+    unit: 'μS',
+    lowerLimit: 600,
+    upperLimit: 850,
+    hasLowerLimit: true,
+    hasUpperLimit: true,
+    decimals: 1,
+    description: 'Conductividad eléctrica en microsiemens (μS). Rango 600 a 850 μS.'
+  },
+  'TDS': {
+    key: 'TDS',
+    aliases: ['TDS', 'Total Dissolved Solids'],
+    label: 'TDS < 1000 ppm',
+    shortLabel: 'TDS',
+    unit: 'ppm',
+    lowerLimit: 0,
+    upperLimit: 1000,
+    hasLowerLimit: false,
+    hasUpperLimit: true,
+    decimals: 1,
+    description: 'Sólidos totales disueltos. Límite máximo 1000 ppm.'
+  },
+  'TSS': {
+    key: 'TSS',
+    aliases: ['Total Suspended Solids', 'TSS', 'Solidos Suspendidos'],
+    label: 'TSS < 5 ppm',
+    shortLabel: 'TSS',
+    unit: 'ppm',
+    lowerLimit: 0,
+    upperLimit: 5,
+    hasLowerLimit: false,
+    hasUpperLimit: true,
+    decimals: 1,
+    description: 'Sólidos totales en suspensión. Límite máximo 5 ppm.'
+  },
+  'Turbidity': {
+    key: 'Turbidity',
+    aliases: ['Turbidity', 'Turbidez', 'Turb'],
+    label: 'Turbidez < 10 NTU',
+    shortLabel: 'Turbidez',
+    unit: 'NTU',
+    lowerLimit: 0,
+    upperLimit: 10,
+    hasLowerLimit: false,
+    hasUpperLimit: true,
+    decimals: 1,
+    description: 'Turbidez del fluido en unidades nefelométricas (NTU). Límite < 10 NTU.'
+  }
+};
+
+const ORDERED_PARAM_KEYS = ['Bacteria', 'PH', 'Conductivity', 'TDS', 'TSS', 'Turbidity'];
+
+class DataService {
+  constructor() {
+    this.rawRecords = [];
+    this.normalizedRecords = [];
+    this.listeners = [];
+  }
+
+  /**
+   * Initializes data from local CSV file or fallback raw string
+   */
+  async initialize() {
+    try {
+      const response = await fetch('data/dataset.csv');
+      if (response.ok) {
+        const text = await response.text();
+        this.parseAndSetData(text);
+        return;
+      }
+    } catch (e) {
+      console.warn('Using embedded dataset fallback:', e.message);
+    }
+    this.parseAndSetData(DEFAULT_CSV_RAW);
+  }
+
+  /**
+   * Parse CSV line with quote-safety
+   */
+  parseCSVLine(text) {
+    const p = [];
+    let cur = '';
+    let inQuote = false;
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if (char === '"') {
+        if (inQuote && text[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuote = !inQuote;
+        }
+      } else if (char === ',' && !inQuote) {
+        p.push(cur.trim());
+        cur = '';
+      } else {
+        cur += char;
+      }
+    }
+    p.push(cur.trim());
+    return p;
+  }
+
+  /**
+   * Maps parameter string to canonical key
+   */
+  normalizeParameterName(paramStr) {
+    if (!paramStr) return null;
+    const clean = paramStr.trim().toLowerCase();
+    for (const [key, cfg] of Object.entries(PARAMETER_CONFIGS)) {
+      for (const alias of cfg.aliases) {
+        if (alias.toLowerCase() === clean) {
+          return key;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Clean numeric string, handling commas in thousands and special accent quotes
+   */
+  cleanNumericValue(valStr) {
+    if (valStr === undefined || valStr === null) return null;
+    let s = String(valStr).trim();
+    if (!s) return null;
+    // Replace unusual quote or backtick characters
+    s = s.replace(/[´`'"]/g, '');
+    // Handle thousand separators e.g. "2,001.0" or "1,207.0"
+    if (s.includes(',') && s.includes('.')) {
+      s = s.replace(/,/g, '');
+    } else if (s.includes(',')) {
+      // If only comma, check if it's decimal or thousand separator
+      const parts = s.split(',');
+      if (parts.length === 2 && parts[1].length === 3) {
+        s = s.replace(',', ''); // e.g. 2,000 -> 2000
+      } else {
+        s = s.replace(',', '.'); // decimal comma e.g. 8,5 -> 8.5
+      }
+    }
+    const num = parseFloat(s);
+    return isNaN(num) ? null : num;
+  }
+
+  /**
+   * Parse Date in DD/MM/YYYY or YYYY-MM-DD or DD-MM-YYYY format
+   */
+  parseDate(dateStr) {
+    if (!dateStr) return { dateObj: new Date(0), formattedDate: '', timestamp: 0 };
+    const clean = dateStr.trim();
+    let day, month, year;
+
+    if (clean.includes('/')) {
+      const parts = clean.split('/');
+      day = parseInt(parts[0], 10);
+      month = parseInt(parts[1], 10) - 1;
+      year = parseInt(parts[2], 10);
+      if (year < 100) year += 2000;
+    } else if (clean.includes('-')) {
+      const parts = clean.split('-');
+      if (parts[0].length === 4) {
+        year = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10) - 1;
+        day = parseInt(parts[2], 10);
+      } else {
+        day = parseInt(parts[0], 10);
+        month = parseInt(parts[1], 10) - 1;
+        year = parseInt(parts[2], 10);
+        if (year < 100) year += 2000;
+      }
+    } else {
+      const d = new Date(clean);
+      return { dateObj: d, formattedDate: clean, timestamp: isNaN(d.getTime()) ? 0 : d.getTime() };
+    }
+
+    const d = new Date(year, month, day);
+    const dd = String(day).padStart(2, '0');
+    const mm = String(month + 1).padStart(2, '0');
+    const yyyy = year;
+    const formatted = `${dd}/${mm}/${yyyy}`;
+    const iso = `${yyyy}-${mm}-${dd}`;
+
+    return {
+      dateObj: d,
+      formattedDate: formatted,
+      isoDate: iso,
+      timestamp: d.getTime()
+    };
+  }
+
+  /**
+   * Parse Week String into orderable number
+   * e.g. "WK 4 2026" -> { weekNumber: 4, year: 2026, sortKey: 202604, label: "WK 4 2026" }
+   */
+  parseWeek(weekStr) {
+    if (!weekStr) return { weekNumber: 0, year: 2026, sortKey: 0, label: '' };
+    const clean = weekStr.trim();
+    const match = clean.match(/WK\s*(\d+)(?:\s+(\d{4}))?/i);
+    if (match) {
+      const wkNum = parseInt(match[1], 10);
+      const yr = match[2] ? parseInt(match[2], 10) : 2026;
+      return {
+        weekNumber: wkNum,
+        year: yr,
+        sortKey: yr * 100 + wkNum,
+        label: `WK ${wkNum} ${yr}`
+      };
+    }
+    return { weekNumber: 0, year: 2026, sortKey: 0, label: clean };
+  }
+
+  /**
+   * Parse complete CSV string into structured dataset
+   */
+  parseAndSetData(csvText) {
+    const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+    if (lines.length < 2) return;
+
+    const header = this.parseCSVLine(lines[0]);
+    // Find column indexes
+    const colPOD = header.findIndex(h => /POD/i.test(h));
+    const colCDU = header.findIndex(h => /CDU/i.test(h));
+    const colWeek = header.findIndex(h => /Week/i.test(h));
+    const colDate = header.findIndex(h => /Date/i.test(h));
+    const colParam = header.findIndex(h => /^Parameter/i.test(h));
+    const colData = header.findIndex(h => /Measured\s*Data/i.test(h));
+    const colComment = header.findIndex(h => /Comment/i.test(h));
+
+    const records = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const parts = this.parseCSVLine(lines[i]);
+      if (parts.length < 5) continue;
+
+      const podRaw = parts[colPOD !== -1 ? colPOD : 0] || '';
+      const cduRaw = parts[colCDU !== -1 ? colCDU : 1] || '';
+      const weekRaw = parts[colWeek !== -1 ? colWeek : 2] || '';
+      const dateRaw = parts[colDate !== -1 ? colDate : 3] || '';
+      const paramRaw = parts[colParam !== -1 ? colParam : 4] || '';
+      const dataRaw = parts[colData !== -1 ? colData : 5] || '';
+      const commentRaw = parts[colComment !== -1 ? colComment : 6] || '';
+
+      if (!podRaw || !cduRaw || !paramRaw) continue;
+
+      const paramKey = this.normalizeParameterName(paramRaw);
+      if (!paramKey) continue;
+
+      const numVal = this.cleanNumericValue(dataRaw);
+      if (numVal === null) continue;
+
+      const dateParsed = this.parseDate(dateRaw);
+      const weekParsed = this.parseWeek(weekRaw);
+
+      // Normalize POD and CDU identifiers
+      // e.g. "POD #3" -> "POD #3", "CDU-02" -> "CDU #2" or standard "CDU-02"
+      const podClean = podRaw.trim();
+      const cduClean = cduRaw.trim();
+
+      records.push({
+        id: `rec_${i}`,
+        pod: podClean,
+        cdu: cduClean,
+        equipmentKey: `${podClean} | ${cduClean}`,
+        week: weekParsed.label || weekRaw,
+        weekNumber: weekParsed.weekNumber,
+        weekSortKey: weekParsed.sortKey,
+        date: dateParsed.formattedDate,
+        isoDate: dateParsed.isoDate,
+        dateObj: dateParsed.dateObj,
+        timestamp: dateParsed.timestamp,
+        parameter: paramKey,
+        paramRaw: paramRaw,
+        value: numVal,
+        comment: commentRaw.trim()
+      });
+    }
+
+    // Sort all records chronologically
+    records.sort((a, b) => {
+      if (a.timestamp !== b.timestamp) return a.timestamp - b.timestamp;
+      if (a.weekSortKey !== b.weekSortKey) return a.weekSortKey - b.weekSortKey;
+      return a.id.localeCompare(b.id);
+    });
+
+    this.rawRecords = records;
+    this.buildPrecomputedIndices();
+    this.notifyListeners();
+  }
+
+  /**
+   * Precomputes chronological indices for POD/CDU streams to efficiently calculate consecutive out-of-spec weeks
+   */
+  buildPrecomputedIndices() {
+    this.equipmentMap = new Map();
+    this.podsSet = new Set();
+    this.cdusSet = new Set();
+    this.weeksMap = new Map(); // label -> sortKey
+    this.datesSet = new Set();
+
+    this.rawRecords.forEach(rec => {
+      this.podsSet.add(rec.pod);
+      this.cdusSet.add(rec.cdu);
+      if (rec.week) this.weeksMap.set(rec.week, rec.weekSortKey);
+      if (rec.date) this.datesSet.add(rec.date);
+
+      const eqKey = rec.equipmentKey;
+      if (!this.equipmentMap.has(eqKey)) {
+        this.equipmentMap.set(eqKey, {
+          pod: rec.pod,
+          cdu: rec.cdu,
+          readingsByParam: {
+            Bacteria: [],
+            PH: [],
+            Conductivity: [],
+            TDS: [],
+            TSS: [],
+            Turbidity: []
+          }
+        });
+      }
+      this.equipmentMap.get(eqKey).readingsByParam[rec.parameter].push(rec);
+    });
+  }
+
+  /**
+   * Determines color status for a measurement according to business criteria:
+   * 
+   * Bacteria:
+   * - 0 to 1500: 'green'
+   * - 1st week out of spec (>1500): 'yellow'
+   * - 2nd or more consecutive weeks out of spec: 'red'
+   * 
+   * PH:
+   * - 8.0 to 9.5: 'green'
+   * - <= 7.9 or >= 9.6: 'red'
+   * 
+   * Conductivity:
+   * - 600 to 850: 'green'
+   * - <= 599 or >= 851: 'red'
+   * 
+   * TDS:
+   * - 0 to 1000: 'green'
+   * - >= 1001: 'red'
+   * 
+   * TSS:
+   * - 0 to 5: 'green'
+   * - >= 5.1: 'red'
+   * 
+   * Turbidity:
+   * - 0 to 10: 'green'
+   * - >= 10.1: 'red'
+   */
+  evaluateStatus(parameterKey, value, chronologicalSeries = [], readingIndex = -1) {
+    if (value === null || value === undefined) {
+      return { status: 'none', label: 'Sin datos', colorClass: 'cell-na', hex: '#64748b' };
+    }
+
+    if (parameterKey === 'Bacteria') {
+      if (value <= 1500) {
+        return {
+          status: 'green',
+          label: 'Dentro de Parámetro',
+          colorClass: 'cell-green',
+          hex: '#22c55e',
+          badgeText: 'Normal'
+        };
+      } else {
+        // Out of parameters (> 1500)
+        // Check historical sequence to see if previous week was also out of spec
+        let isConsecutive = false;
+        const idx = readingIndex !== -1 ? readingIndex : chronologicalSeries.length - 1;
+
+        if (idx > 0 && chronologicalSeries[idx - 1]) {
+          const prevVal = chronologicalSeries[idx - 1].value;
+          if (prevVal > 1500) {
+            isConsecutive = true;
+          }
+        }
+
+        if (isConsecutive) {
+          return {
+            status: 'red',
+            label: 'Fuera de Parámetro (≥ 2 sem consecutivas)',
+            colorClass: 'cell-red',
+            hex: '#ef4444',
+            badgeText: 'Crítico (≥ 2 sem)'
+          };
+        } else {
+          return {
+            status: 'yellow',
+            label: 'Fuera de Parámetro (1ª semana)',
+            colorClass: 'cell-yellow',
+            hex: '#eab308',
+            badgeText: 'Alerta (1 sem)'
+          };
+        }
+      }
+    }
+
+    if (parameterKey === 'PH') {
+      // 8.0 to 9.5 is green, <= 7.9 or >= 9.6 is red
+      if (value >= 8.0 && value <= 9.5) {
+        return { status: 'green', label: 'Normal (8.0 - 9.5)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+      }
+      return { status: 'red', label: 'Fuera de Rango (< 8.0 o > 9.5)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crítico' };
+    }
+
+    if (parameterKey === 'Conductivity') {
+      // 600 to 850 is green, <= 599 or >= 851 is red
+      if (value >= 600 && value <= 850) {
+        return { status: 'green', label: 'Normal (600 - 850 μS)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+      }
+      return { status: 'red', label: 'Fuera de Rango (< 600 o > 850 μS)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crítico' };
+    }
+
+    if (parameterKey === 'TDS') {
+      // 0 to 1000 is green, >= 1001 is red
+      if (value <= 1000) {
+        return { status: 'green', label: 'Normal (≤ 1000 ppm)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+      }
+      return { status: 'red', label: 'Fuera de Rango (> 1000 ppm)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crítico' };
+    }
+
+    if (parameterKey === 'TSS') {
+      // 0 to 5 is green, >= 5.1 is red
+      if (value <= 5.0) {
+        return { status: 'green', label: 'Normal (≤ 5 ppm)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+      }
+      return { status: 'red', label: 'Fuera de Rango (> 5 ppm)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crítico' };
+    }
+
+    if (parameterKey === 'Turbidity') {
+      // 0 to 10 is green, >= 10.1 is red
+      if (value <= 10.0) {
+        return { status: 'green', label: 'Normal (≤ 10 NTU)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+      }
+      return { status: 'red', label: 'Fuera de Rango (> 10 NTU)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crítico' };
+    }
+
+    return { status: 'none', label: 'N/A', colorClass: 'cell-na', hex: '#64748b' };
+  }
+
+  /**
+   * Get all distinct filter options sorted naturally
+   */
+  getFilterOptions() {
+    const pods = Array.from(this.podsSet).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+      return numA - numB;
+    });
+
+    const cdus = Array.from(this.cdusSet).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+      return numA - numB;
+    });
+
+    const weeks = Array.from(this.weeksMap.entries())
+      .sort((a, b) => a[1] - b[1])
+      .map(entry => entry[0]);
+
+    // Dates sorted chronologically
+    const dateEntries = Array.from(this.datesSet).map(d => {
+      const parsed = this.parseDate(d);
+      return { label: d, timestamp: parsed.timestamp };
+    }).sort((a, b) => a.timestamp - b.timestamp);
+
+    const dates = dateEntries.map(d => d.label);
+
+    return { pods, cdus, weeks, dates };
+  }
+
+  /**
+   * Filters records according to active global filters
+   */
+  getFilteredRecords(filters = {}) {
+    return this.rawRecords.filter(rec => {
+      if (filters.pod && filters.pod !== 'ALL' && rec.pod !== filters.pod) {
+        return false;
+      }
+      if (filters.cdu && filters.cdu !== 'ALL' && rec.cdu !== filters.cdu) {
+        return false;
+      }
+      if (filters.week && filters.week !== 'ALL' && rec.week !== filters.week) {
+        return false;
+      }
+      if (filters.date && filters.date !== 'ALL' && rec.date !== filters.date) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  /**
+   * Calculates the Painter Matrix state for current filters.
+   * For each POD and CDU:
+   * Takes the latest measurement available (within the filtered scope or latest recorded),
+   * evaluates its color (green/yellow/red) and numeric value.
+   */
+  getPainterMatrixData(filters = {}) {
+    const filtered = this.getFilteredRecords(filters);
+    
+    // Group records by POD and CDU
+    // We also want to know the distinct equipment matching the current POD / CDU filters
+    const filterOptions = this.getFilterOptions();
+    let targetPods = filterOptions.pods;
+    let targetCdus = filterOptions.cdus;
+
+    if (filters.pod && filters.pod !== 'ALL') {
+      targetPods = [filters.pod];
+    }
+    if (filters.cdu && filters.cdu !== 'ALL') {
+      targetCdus = [filters.cdu];
+    }
+
+    // Build the grid structure
+    const podGroups = [];
+
+    targetPods.forEach(pod => {
+      // Find CDUs belonging to this POD
+      const podRecords = this.rawRecords.filter(r => r.pod === pod);
+      const availableCdusInPod = Array.from(new Set(podRecords.map(r => r.cdu))).sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+        const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+        return numA - numB;
+      });
+
+      const activeCdus = availableCdusInPod.filter(cdu => targetCdus.includes(cdu));
+      if (activeCdus.length === 0) return;
+
+      const rows = [];
+
+      activeCdus.forEach(cdu => {
+        const eqKey = `${pod} | ${cdu}`;
+        const eqData = this.equipmentMap.get(eqKey);
+
+        const cells = {};
+        let rowStatusCounts = { green: 0, yellow: 0, red: 0, na: 0 };
+
+        ORDERED_PARAM_KEYS.forEach(paramKey => {
+          // Get all readings for this equipment and parameter filtered by active filters
+          const allEqParamReadings = (eqData && eqData.readingsByParam[paramKey]) ? eqData.readingsByParam[paramKey] : [];
+          
+          // Apply week / date filters if specified
+          const filteredReadings = allEqParamReadings.filter(rec => {
+            if (filters.week && filters.week !== 'ALL' && rec.week !== filters.week) return false;
+            if (filters.date && filters.date !== 'ALL' && rec.date !== filters.date) return false;
+            return true;
+          });
+
+          if (filteredReadings.length === 0) {
+            cells[paramKey] = {
+              value: null,
+              formattedValue: '-',
+              status: 'na',
+              colorClass: 'cell-na',
+              hex: '#64748b',
+              comment: '',
+              date: '',
+              week: ''
+            };
+            rowStatusCounts.na++;
+          } else {
+            // Take the latest reading in this set
+            const latestReading = filteredReadings[filteredReadings.length - 1];
+            
+            // Find index of latestReading in the full chronological equipment series
+            const fullIdx = allEqParamReadings.findIndex(r => r.id === latestReading.id);
+            const statusEval = this.evaluateStatus(paramKey, latestReading.value, allEqParamReadings, fullIdx);
+
+            const cfg = PARAMETER_CONFIGS[paramKey];
+            const formattedVal = typeof latestReading.value === 'number'
+              ? (cfg.decimals > 0 ? latestReading.value.toFixed(cfg.decimals) : Math.round(latestReading.value).toString())
+              : '-';
+
+            cells[paramKey] = {
+              value: latestReading.value,
+              formattedValue: formattedVal,
+              unit: cfg.unit,
+              status: statusEval.status,
+              label: statusEval.label,
+              badgeText: statusEval.badgeText,
+              colorClass: statusEval.colorClass,
+              hex: statusEval.hex,
+              comment: latestReading.comment || '',
+              date: latestReading.date,
+              week: latestReading.week
+            };
+
+            if (statusEval.status === 'green') rowStatusCounts.green++;
+            else if (statusEval.status === 'yellow') rowStatusCounts.yellow++;
+            else if (statusEval.status === 'red') rowStatusCounts.red++;
+          }
+        });
+
+        // Determine CDU display label e.g. "CDU #1" or "CDU-01"
+        const cduDisplay = cdu.replace('CDU-', 'CDU #').replace('CDU-0', 'CDU #');
+
+        rows.push({
+          pod: pod,
+          cdu: cdu,
+          cduDisplay: cduDisplay,
+          equipmentKey: eqKey,
+          cells: cells,
+          statusCounts: rowStatusCounts
+        });
+      });
+
+      if (rows.length > 0) {
+        podGroups.push({
+          pod: pod,
+          rows: rows
+        });
+      }
+    });
+
+    // Global matrix status stats (computed before statusFilter to keep true totals)
+    let totalGreen = 0;
+    let totalYellow = 0;
+    let totalRed = 0;
+    let totalCells = 0;
+
+    podGroups.forEach(g => {
+      g.rows.forEach(r => {
+        totalGreen += r.statusCounts.green;
+        totalYellow += r.statusCounts.yellow;
+        totalRed += r.statusCounts.red;
+        totalCells += (r.statusCounts.green + r.statusCounts.yellow + r.statusCounts.red);
+      });
+    });
+
+    const complianceRate = totalCells > 0 ? ((totalGreen / totalCells) * 100).toFixed(1) : '100.0';
+
+    // Apply statusFilter if selected ('green', 'yellow', 'red')
+    let displayPodGroups = podGroups;
+    const statusFilter = filters.statusFilter || 'ALL';
+
+    if (statusFilter !== 'ALL') {
+      displayPodGroups = [];
+      podGroups.forEach(group => {
+        const matchingRows = group.rows.filter(r => {
+          if (statusFilter === 'green') return r.statusCounts.green > 0;
+          if (statusFilter === 'yellow') return r.statusCounts.yellow > 0;
+          if (statusFilter === 'red') return r.statusCounts.red > 0;
+          return true;
+        });
+
+        if (matchingRows.length > 0) {
+          displayPodGroups.push({
+            pod: group.pod,
+            rows: matchingRows
+          });
+        }
+      });
+    }
+
+    return {
+      podGroups: displayPodGroups,
+      allPodGroups: podGroups,
+      activeStatusFilter: statusFilter,
+      stats: {
+        totalGreen,
+        totalYellow,
+        totalRed,
+        totalCells,
+        complianceRate
+      }
+    };
+  }
+
+  /**
+   * Retrieves historical series data for a specific parameter for line charting
+   */
+  getParameterHistoricalData(paramKey, filters = {}) {
+    const cfg = PARAMETER_CONFIGS[paramKey] || PARAMETER_CONFIGS['Bacteria'];
+    const filtered = this.getFilteredRecords(filters).filter(r => r.parameter === paramKey);
+
+    // Group by timestamp / date or create equipment time series
+    // Group equipment series
+    const equipmentMap = new Map();
+    const allDatesMap = new Map();
+
+    filtered.forEach(rec => {
+      const eq = rec.equipmentKey;
+      if (!equipmentMap.has(eq)) {
+        equipmentMap.set(eq, {
+          pod: rec.pod,
+          cdu: rec.cdu,
+          equipmentKey: eq,
+          readings: []
+        });
+      }
+      equipmentMap.get(eq).readings.push(rec);
+
+      const dateKey = `${rec.week} (${rec.date})`;
+      if (!allDatesMap.has(dateKey)) {
+        allDatesMap.set(dateKey, {
+          label: dateKey,
+          week: rec.week,
+          date: rec.date,
+          timestamp: rec.timestamp,
+          weekSortKey: rec.weekSortKey
+        });
+      }
+    });
+
+    // Sort time axis points
+    const timePoints = Array.from(allDatesMap.values()).sort((a, b) => {
+      if (a.timestamp !== b.timestamp) return a.timestamp - b.timestamp;
+      return a.weekSortKey - b.weekSortKey;
+    });
+
+    // Compute parameter KPIs
+    const values = filtered.map(r => r.value);
+    const count = values.length;
+    let min = 0;
+    let max = 0;
+    let avg = 0;
+    let inSpecCount = 0;
+
+    if (count > 0) {
+      min = Math.min(...values);
+      max = Math.max(...values);
+      avg = (values.reduce((sum, v) => sum + v, 0) / count);
+
+      filtered.forEach(r => {
+        // Check if in spec
+        let inSpec = false;
+        if (paramKey === 'Bacteria') inSpec = r.value <= 1500;
+        else if (paramKey === 'PH') inSpec = r.value >= 8.0 && r.value <= 9.5;
+        else if (paramKey === 'Conductivity') inSpec = r.value >= 600 && r.value <= 850;
+        else if (paramKey === 'TDS') inSpec = r.value <= 1000;
+        else if (paramKey === 'TSS') inSpec = r.value <= 5.0;
+        else if (paramKey === 'Turbidity') inSpec = r.value <= 10.0;
+        if (inSpec) inSpecCount++;
+      });
+    }
+
+    const compliancePercent = count > 0 ? ((inSpecCount / count) * 100).toFixed(1) : '100.0';
+    const latestReading = filtered.length > 0 ? filtered[filtered.length - 1] : null;
+
+    return {
+      paramKey: paramKey,
+      config: cfg,
+      records: filtered,
+      timePoints: timePoints,
+      equipmentSeries: Array.from(equipmentMap.values()),
+      kpis: {
+        totalSamples: count,
+        min: count > 0 ? (cfg.decimals > 0 ? min.toFixed(cfg.decimals) : Math.round(min)) : '-',
+        max: count > 0 ? (cfg.decimals > 0 ? max.toFixed(cfg.decimals) : Math.round(max)) : '-',
+        avg: count > 0 ? avg.toFixed(cfg.decimals > 0 ? cfg.decimals : 1) : '-',
+        compliancePercent: compliancePercent,
+        outOfSpecCount: count - inSpecCount,
+        latestValue: latestReading ? (cfg.decimals > 0 ? latestReading.value.toFixed(cfg.decimals) : Math.round(latestReading.value)) : '-',
+        latestDate: latestReading ? latestReading.date : '-'
+      }
+    };
+  }
+
+  subscribe(listener) {
+    this.listeners.push(listener);
+  }
+
+  notifyListeners() {
+    this.listeners.forEach(fn => fn(this));
+  }
+}
+
+// Instantiate global singleton
+const dataService = new DataService();
