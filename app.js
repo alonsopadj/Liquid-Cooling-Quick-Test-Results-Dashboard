@@ -319,6 +319,6 @@ function addRow() {
 window.addRow = function() {
 
     alert("Funciona");
-
+  console.log("APP JS CARGADO");
 };
 ``
