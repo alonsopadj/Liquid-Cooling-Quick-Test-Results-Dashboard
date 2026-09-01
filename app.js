@@ -283,3 +283,56 @@ function addRow(){
 
     tbody.appendChild(row);
 }
+document.getElementById("btnAddRow").addEventListener("click", addRow);
+
+function addRow() {
+
+    const tbody = document.getElementById("tableBody");
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+        <td><input type="date"></td>
+
+        <td>
+            <select>
+                <option>POD #1</option>
+                <option>POD #2</option>
+                <option>POD #3</option>
+                <option>POD #4</option>
+            </select>
+        </td>
+
+        <td>
+            <select>
+                <option>CDU-01</option>
+                <option>CDU-02</option>
+                <option>CDU-03</option>
+                <option>CDU-04</option>
+                <option>CDU-05</option>
+                <option>CDU-06</option>
+            </select>
+        </td>
+
+        <td>
+            <select>
+                <option>PH</option>
+                <option>Conductivity</option>
+                <option>Turbidity</option>
+                <option>TDS</option>
+                <option>ATP Bacteria</option>
+                <option>Total Suspended Solids</option>
+            </select>
+        </td>
+
+        <td>
+            <input type="number" step="0.01">
+        </td>
+
+        <td>
+            <input type="text">
+        </td>
+    `;
+
+    tbody.appendChild(row);
+}
