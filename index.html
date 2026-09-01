@@ -5257,10 +5257,44 @@ function showNotification(message, type = 'info') {
   }, 3500);
 }
 
-    async function guardarRegistro() {
+async function guardarRegistro() {
 
-    alert("Funcion ejecutada");
+    const datos = {
+        pod: document.getElementById("pod").value,
+        cdu: document.getElementById("cdu").value,
+        week: document.getElementById("semana").value,
+        date: document.getElementById("fecha").value,
+        parameter: document.getElementById("prueba").value,
+        measuredData: document.getElementById("resultado").value,
+        comment: document.getElementById("comentario").value
+    };
 
+    console.log("Datos enviados:", datos);
+
+    try {
+
+        const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbxYEzhpYuj2vNiZ-PuqOGzsQgRqOxy8tU05HN9aY3M6rNvJDJz7bV_PERno4jefeUnqdw/exec",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(datos)
+            }
+        );
+
+        console.log("Respuesta:", response);
+
+        alert("Registro enviado");
+
+    } catch (error) {
+
+        console.error("ERROR:", error);
+
+        alert("Error al guardar");
+
+    }
 }
     
 </script>
