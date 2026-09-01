@@ -316,3 +316,9 @@ function addRow() {
 
     tbody.appendChild(row);
 }
+window.addRow = function() {
+
+    alert("Funciona");
+
+};
+``
