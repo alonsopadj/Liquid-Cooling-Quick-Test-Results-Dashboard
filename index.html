@@ -5313,7 +5313,54 @@ function showNotification(message, type = 'info') {
 }
 
 window.addRow = function() {
-    alert("Funciona");
+*    const tbody = document.getElem*ntById("tableBody");
+
+    const ro* = document.createElement("tr");
+
+*   row.innerHTML = `
+        <td><*nput type="date"></td>
+
+        <t*>
+            <select>
+           *    <option>POD #1</option>
+      *         <option>POD #2</option>
+ *              <option>POD #3</opti*n>
+                <option>POD #4<*option>
+            </select>
+    *   </td>
+
+        <td>
+           *<select>
+                <option>C*U-01</option>
+                <opt*on>CDU-02</option>
+               *<option>CDU-03</option>
+          *     <option>CDU-04</option>
+     *          <option>CDU-05</option>
+*               <option>CDU-06</opt*on>
+            </select>
+        */td>
+
+        <td>
+            <se*ect>
+                <option>PH</o*tion>
+                <option>Cond*ctivity</option>
+                <*ption>Turbidity</option>
+         *      <option>TDS</option>
+       *        <option>ATP Bacteria</opti*n>
+                <option>Total S*spended Solids</option>
+          * </select>
+        </td>
+
+        *td>
+            <input type="numbe*" step="0.01">
+        </td>
+
+    *   <td>
+            <input type="t*xt">
+        </td>
+    `;
+
+    tbo*y.appendChild(row);
 };
     
 </script>
