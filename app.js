@@ -264,7 +264,6 @@ function showNotification(message, type = 'info') {
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }
-document.getElementById("btnAddRow").addEventListener("click", addRow);
 
 function addRow() {
 
