@@ -1773,15 +1773,60 @@ body {
         </ul>
       </nav>
 
-      <!-- Main Dashboard View: Painter Chart Matrix -->
-      <section id="view-main-dashboard">
-        <div id="painter-matrix-container">
-          <!-- Dynamic rendering via painter-chart.js -->
-        </div>
-      </section>
+<!-- Main Dashboard View: Painter Chart Matrix -->
+<section id="view-main-dashboard">
+  <div id="painter-matrix-container">
+    <!-- Dynamic rendering via painter-chart.js -->
+  </div>
+</section>
 
-      <!-- Secondary Dashboards View: Historical Trend Charts -->
-      <section id="view-secondary-dashboard" style="display: none;">
+<!-- NUEVA SECCIÓN -->
+<section class="data-entry-section">
+
+    <h2>📝 Data Entry</h2>
+
+    <table id="entryTable">
+
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>POD</th>
+                <th>CDU</th>
+                <th>Parameter</th>
+                <th>Measured Data</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+
+        <tbody id="tableBody">
+
+            <tr>
+                <td><input type="date"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="text"></td>
+                <td><input type="number"></td>
+                <td><input type="text"></td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <button id="btnAddRow">
+        ➕ Add Row
+    </button>
+
+    <button id="btnSaveRows">
+        💾 Save Records
+    </button>
+
+</section>
+
+<!-- Secondary Dashboards View: Historical Trend Charts -->
+<section id="view-secondary-dashboard" style="display: none;">
         <div id="secondary-dashboard-container">
           <!-- Dynamic rendering via trend-charts.js -->
         </div>
