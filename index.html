@@ -3336,7 +3336,7 @@ class DataService {
    */
   async initialize() {
     try {
-      const response = await fetch('data/dataset.csv');
+      const response = await fetch('');
       if (response.ok) {
         const text = await response.text();
         this.parseAndSetData(text);
