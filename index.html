@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Liquid Cooling Dashboard | Monitoreo POD & CDU</title>
-  <meta name="description" content="Liquid Cooling Dashboard: Control y visualizaciÃ³n de resultados de pruebas rÃ¡pidas en sistemas POD y CDU con semaforizaciÃ³n y tendencias histÃ³ricas.">
+  <meta name="description" content="Liquid Cooling Dashboard: Control y visualización de resultados de pruebas rí¡pidas en sistemas POD y CDU con semaforización y tendencias históricas.">
   
   <!-- CSS Stylesheet -->
   <style>
@@ -481,7 +481,7 @@ body {
 }
 
 .kpi-clickable::after {
-  content: 'ðŸ” Clic para filtrar';
+  content: '🔍 Clic para filtrar';
   position: absolute;
   bottom: 6px;
   right: 10px;
@@ -1658,7 +1658,7 @@ body {
     <!-- Top Navigation Bar -->
     <header class="top-navbar">
       <div class="brand-section">
-        <span class="brand-logo-icon">ðŸ’§</span>
+        <span class="brand-logo-icon">🐠</span>
         <div>
           <span class="brand-title">Liquid Cooling Dashboard</span>
           <span class="brand-badge">Operación Continua</span>
@@ -1666,18 +1666,18 @@ body {
       </div>
 
       <div class="navbar-actions">
-        <button id="btn-summary" class="btn btn-nav-action btn-sm btn-summary-highlight" title="Generar y descargar automÃ¡ticamente el archivo PDF con el resumen compacto">
-           Summary (PDF)
+        <button id="btn-summary" class="btn btn-nav-action btn-sm btn-summary-highlight" title="Generar y descargar automáticamente el archivo PDF con el resumen compacto">
+          📄 Summary (PDF)
         </button>
         <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
         <button id="btn-upload-csv" class="btn btn-nav-action btn-sm" title="Cargar nuevo archivo CSV con mediciones">
-          ðŸ“ Cargar CSV
+          📁 Cargar CSV
         </button>
         <button id="btn-export-matrix" class="btn btn-nav-action btn-sm" title="Descargar la matriz actual en formato CSV">
-          ðŸ“Š Exportar Matriz
+          📤 Exportar Matriz
         </button>
         <button id="btn-print-report" class="btn btn-nav-action btn-sm" title="Imprimir o guardar reporte en PDF">
-          ðŸ–¨ï¸ Imprimir / PDF
+          🖨️ Imprimir / PDF
         </button>
       </div>
     </header>
@@ -1689,7 +1689,7 @@ body {
       <section class="filters-panel" aria-label="Filtros Globales">
         <div class="filters-inline-bar">
           <div class="filter-group-header">
-            <span class="filters-icon">ðŸ”</span>
+            <span class="filters-icon">🔍</span>
             <span class="filters-title">Filtros:</span>
           </div>
 
@@ -1727,47 +1727,47 @@ body {
 
           <!-- Reset Filter Action -->
           <button id="btn-reset-filters" class="btn btn-secondary btn-compact" title="Restablecer todos los filtros a su estado inicial">
-            ðŸ”„ Limpiar
+            🔄 Limpiar
           </button>
         </div>
       </section>
 
       <!-- Navigation Tabs (Main Dashboard + 6 Secondary Dashboards) -->
-      <nav class="tabs-navigation-wrapper" aria-label="NavegaciÃ³n de Dashboards">
+      <nav class="tabs-navigation-wrapper" aria-label="Navegación de Dashboards">
         <ul class="nav-tabs-list" role="tablist">
           <li>
             <button class="nav-tab active" data-tab="main" role="tab" aria-selected="true">
-              ðŸ“‹ Matriz Principal (Painter Chart)
+              📋 Matriz Principal (Painter Chart)
             </button>
           </li>
           <li>
             <button class="nav-tab" data-tab="Bacteria" role="tab" aria-selected="false">
-              ðŸ¦  Bacteria <span class="nav-tab-badge">&lt; 1500 RLU</span>
+              🦠 Bacteria <span class="nav-tab-badge">&lt; 1500 RLU</span>
             </button>
           </li>
           <li>
             <button class="nav-tab" data-tab="PH" role="tab" aria-selected="false">
-              ðŸ§ª PH <span class="nav-tab-badge">8 â€“ 9.5</span>
+              🧪 PH <span class="nav-tab-badge">8 - 9.5</span>
             </button>
           </li>
           <li>
             <button class="nav-tab" data-tab="Conductivity" role="tab" aria-selected="false">
-              âš¡ Conductividad <span class="nav-tab-badge">600 - 850 Î¼S</span>
+              ⚡ Conductividad <span class="nav-tab-badge">600 - 850 μS</span>
             </button>
           </li>
           <li>
             <button class="nav-tab" data-tab="TDS" role="tab" aria-selected="false">
-              ðŸ§‚ TDS <span class="nav-tab-badge">&lt; 1000 ppm</span>
+              🍶 TDS <span class="nav-tab-badge">&lt; 1000 ppm</span>
             </button>
           </li>
           <li>
             <button class="nav-tab" data-tab="TSS" role="tab" aria-selected="false">
-              ðŸŒ«ï¸ TSS <span class="nav-tab-badge">&lt; 5 ppm</span>
+              🧫 TSS <span class="nav-tab-badge">&lt; 5 ppm</span>
             </button>
           </li>
           <li>
             <button class="nav-tab" data-tab="Turbidity" role="tab" aria-selected="false">
-              ðŸ”¬ Turbidez <span class="nav-tab-badge">&lt; 10 NTU</span>
+              🔬 Turbidez <span class="nav-tab-badge">&lt; 10 NTU</span>
             </button>
           </li>
         </ul>
@@ -1795,18 +1795,18 @@ body {
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title-group">
-          <h3 class="modal-title">ðŸ“„ Resumen Ejecutivo (Executive Summary PDF)</h3>
+          <h3 class="modal-title">📄 Resumen Ejecutivo (Executive Summary PDF)</h3>
           <p class="modal-subtitle">Matriz compacta unificada lista para exportar en PDF e imprimir</p>
         </div>
         <div class="modal-header-actions">
           <button id="btn-download-summary-pdf" class="btn btn-primary btn-sm" title="Descargar reporte en formato PDF">
-            ðŸ“¥ Descargar PDF
+            📥 Descargar PDF
           </button>
           <button id="btn-print-summary" class="btn btn-secondary btn-sm" title="Imprimir o guardar como PDF del sistema">
-            ðŸ–¨ï¸ Imprimir
+            🖨️ Imprimir
           </button>
           <button id="btn-copy-summary-img" class="btn btn-nav-action btn-sm" title="Copiar imagen al portapapeles">
-            ðŸ“‹ Copiar
+            📚 Copiar
           </button>
           <button id="btn-close-summary" class="btn-close-modal" title="Cerrar modal">&times;</button>
         </div>
@@ -1817,7 +1817,7 @@ body {
         <div id="summary-capture-target" class="summary-capture-card">
           <div class="summary-card-header">
             <div class="summary-brand">
-              <span class="summary-logo">ðŸ’§</span>
+              <span class="summary-logo">📄</span>
               <div>
                 <h2 class="summary-main-title">LIQUID COOLING DASHBOARD - STATUS REPORT</h2>
                 <span class="summary-timestamp" id="summary-timestamp-label"></span>
@@ -1835,10 +1835,10 @@ body {
           <div class="summary-footer">
             <div class="summary-legend-compact">
               <span class="legend-pill"><span class="dot-green-xs"></span> Normal</span>
-              <span class="legend-pill"><span class="dot-yellow-xs"></span> Alerta (1Âª sem)</span>
-              <span class="legend-pill"><span class="dot-red-xs"></span> CrÃ­tico (â‰¥2 sem / Fuera)</span>
+              <span class="legend-pill"><span class="dot-yellow-xs"></span> Alerta (1ª sem)</span>
+              <span class="legend-pill"><span class="dot-red-xs"></span> Crí­tico (≥2 sem / Fuera)</span>
             </div>
-            <span class="summary-powered">Liquid Cooling Quality Control â€¢ Resumen Oficial</span>
+            <span class="summary-powered">Liquid Cooling Quality Control - Resumen Oficial</span>
           </div>
         </div>
       </div>
@@ -3170,12 +3170,12 @@ const PARAMETER_CONFIGS = {
     hasLowerLimit: false,
     hasUpperLimit: true,
     decimals: 0,
-    description: 'Conteo microbiolÃ³gico de ATP en RLU. LÃ­mite mÃ¡ximo 1500 RLU.'
+    description: 'Conteo microbiológico de ATP en RLU. Lí­mite máximo 1500 RLU.'
   },
   'PH': {
     key: 'PH',
     aliases: ['PH', 'pH', 'Ph'],
-    label: 'PH 8 â€“ 9.5',
+    label: 'PH 8 - 9.5',
     shortLabel: 'PH',
     unit: '',
     lowerLimit: 8.0,
@@ -3183,20 +3183,20 @@ const PARAMETER_CONFIGS = {
     hasLowerLimit: true,
     hasUpperLimit: true,
     decimals: 2,
-    description: 'Potencial de hidrÃ³geno (Acidez/Alcalinidad). Rango Ã³ptimo 8.0 a 9.5.'
+    description: 'Potencial de hidrógeno (Acidez/Alcalinidad). Rango óptimo 8.0 a 9.5.'
   },
   'Conductivity': {
     key: 'Conductivity',
     aliases: ['Conductivity', 'Conductividad', 'Cond'],
-    label: 'Conductividad 600 - 850 Î¼S',
+    label: 'Conductividad 600 - 850 μS',
     shortLabel: 'Conductividad',
-    unit: 'Î¼S',
+    unit: 'μS',
     lowerLimit: 600,
     upperLimit: 850,
     hasLowerLimit: true,
     hasUpperLimit: true,
     decimals: 1,
-    description: 'Conductividad elÃ©ctrica en microsiemens (Î¼S). Rango 600 a 850 Î¼S.'
+    description: 'Conductividad eléctrica en microsiemens (μS). Rango 600 a 850 μS.'
   },
   'TDS': {
     key: 'TDS',
@@ -3209,7 +3209,7 @@ const PARAMETER_CONFIGS = {
     hasLowerLimit: false,
     hasUpperLimit: true,
     decimals: 1,
-    description: 'SÃ³lidos totales disueltos. LÃ­mite mÃ¡ximo 1000 ppm.'
+    description: 'Sólidos totales disueltos. Lí­mite máximo 1000 ppm.'
   },
   'TSS': {
     key: 'TSS',
@@ -3222,7 +3222,7 @@ const PARAMETER_CONFIGS = {
     hasLowerLimit: false,
     hasUpperLimit: true,
     decimals: 1,
-    description: 'SÃ³lidos totales en suspensiÃ³n. LÃ­mite mÃ¡ximo 5 ppm.'
+    description: 'Sólidos totales en suspensión. Lí­mite máximo 5 ppm.'
   },
   'Turbidity': {
     key: 'Turbidity',
@@ -3235,7 +3235,7 @@ const PARAMETER_CONFIGS = {
     hasLowerLimit: false,
     hasUpperLimit: true,
     decimals: 1,
-    description: 'Turbidez del fluido en unidades nefelomÃ©tricas (NTU). LÃ­mite < 10 NTU.'
+    description: 'Turbidez del fluido en unidades nefelométricas (NTU). Lí­mite < 10 NTU.'
   }
 };
 
@@ -3550,7 +3550,7 @@ class DataService {
       if (value <= 1500) {
         return {
           status: 'green',
-          label: 'Dentro de ParÃ¡metro',
+          label: 'Dentro de Parámetro',
           colorClass: 'cell-green',
           hex: '#22c55e',
           badgeText: 'Normal'
@@ -3571,15 +3571,15 @@ class DataService {
         if (isConsecutive) {
           return {
             status: 'red',
-            label: 'Fuera de ParÃ¡metro (â‰¥ 2 sem consecutivas)',
+            label: 'Fuera de Parámetro (≥ 2 sem consecutivas)',
             colorClass: 'cell-red',
             hex: '#ef4444',
-            badgeText: 'CrÃ­tico (â‰¥ 2 sem)'
+            badgeText: 'Crí­tico (≥ 2 sem)'
           };
         } else {
           return {
             status: 'yellow',
-            label: 'Fuera de ParÃ¡metro (1Âª semana)',
+            label: 'Fuera de Parámetro (1ª semana)',
             colorClass: 'cell-yellow',
             hex: '#eab308',
             badgeText: 'Alerta (1 sem)'
@@ -3593,39 +3593,39 @@ class DataService {
       if (value >= 8.0 && value <= 9.5) {
         return { status: 'green', label: 'Normal (8.0 - 9.5)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
       }
-      return { status: 'red', label: 'Fuera de Rango (< 8.0 o > 9.5)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'CrÃ­tico' };
+      return { status: 'red', label: 'Fuera de Rango (< 8.0 o > 9.5)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crí­tico' };
     }
 
     if (parameterKey === 'Conductivity') {
       // 600 to 850 is green, <= 599 or >= 851 is red
       if (value >= 600 && value <= 850) {
-        return { status: 'green', label: 'Normal (600 - 850 Î¼S)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+        return { status: 'green', label: 'Normal (600 - 850 μS)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
       }
-      return { status: 'red', label: 'Fuera de Rango (< 600 o > 850 Î¼S)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'CrÃ­tico' };
+      return { status: 'red', label: 'Fuera de Rango (< 600 o > 850 μS)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crí­tico' };
     }
 
     if (parameterKey === 'TDS') {
       // 0 to 1000 is green, >= 1001 is red
       if (value <= 1000) {
-        return { status: 'green', label: 'Normal (â‰¤ 1000 ppm)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+        return { status: 'green', label: 'Normal (< 1000 ppm)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
       }
-      return { status: 'red', label: 'Fuera de Rango (> 1000 ppm)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'CrÃ­tico' };
+      return { status: 'red', label: 'Fuera de Rango (> 1000 ppm)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crí­tico' };
     }
 
     if (parameterKey === 'TSS') {
       // 0 to 5 is green, >= 5.1 is red
       if (value <= 5.0) {
-        return { status: 'green', label: 'Normal (â‰¤ 5 ppm)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+        return { status: 'green', label: 'Normal (< 5 ppm)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
       }
-      return { status: 'red', label: 'Fuera de Rango (> 5 ppm)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'CrÃ­tico' };
+      return { status: 'red', label: 'Fuera de Rango (> 5 ppm)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crí­tico' };
     }
 
     if (parameterKey === 'Turbidity') {
       // 0 to 10 is green, >= 10.1 is red
       if (value <= 10.0) {
-        return { status: 'green', label: 'Normal (â‰¤ 10 NTU)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
+        return { status: 'green', label: 'Normal (< 10 NTU)', colorClass: 'cell-green', hex: '#22c55e', badgeText: 'Normal' };
       }
-      return { status: 'red', label: 'Fuera de Rango (> 10 NTU)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'CrÃ­tico' };
+      return { status: 'red', label: 'Fuera de Rango (> 10 NTU)', colorClass: 'cell-red', hex: '#ef4444', badgeText: 'Crí­tico' };
     }
 
     return { status: 'none', label: 'N/A', colorClass: 'cell-na', hex: '#64748b' };
@@ -4076,9 +4076,9 @@ class PainterChartRenderer {
     podGroups.forEach(g => { totalFilteredRows += g.rows.length; });
 
     let statusLabel = '';
-    if (activeStatus === 'green') statusLabel = 'ParÃ¡metros Conformes';
-    else if (activeStatus === 'yellow') statusLabel = 'En Alerta (1Âª Semana)';
-    else if (activeStatus === 'red') statusLabel = 'CrÃ­ticos / Fuera de Rango';
+    if (activeStatus === 'green') statusLabel = 'Parámetros Conformes';
+    else if (activeStatus === 'yellow') statusLabel = 'En Alerta (1ª Semana)';
+    else if (activeStatus === 'red') statusLabel = 'Crí­ticos / Fuera de Rango';
 
     let html = `
       <!-- KPI Summary Cards (Interactive Filters) -->
@@ -4088,18 +4088,18 @@ class PainterChartRenderer {
              title="Clic para mostrar todas las mediciones">
           <div class="kpi-header">
             <span class="kpi-title">Cumplimiento Global</span>
-            <span class="kpi-icon">ðŸŽ¯</span>
+            <span class="kpi-icon">🎯</span>
           </div>
           <div class="kpi-value">${stats.complianceRate}%</div>
-          <div class="kpi-subtitle">Basado en Ãºltimas mediciones</div>
+          <div class="kpi-subtitle">Basado en Últimas mediciones</div>
         </div>
 
         <div class="kpi-card kpi-green kpi-clickable ${isGreenActive ? 'kpi-card-active' : ''}" 
              onclick="stateManager.toggleStatusFilter('green')" 
-             title="Clic para filtrar y mostrar solo filas con parÃ¡metros conformes">
+             title="Clic para filtrar y mostrar solo filas con parámetros conformes">
           <div class="kpi-header">
-            <span class="kpi-title">ParÃ¡metros Conformes ${isGreenActive ? '<span class="active-filter-badge">Filtro Activo</span>' : ''}</span>
-            <span class="kpi-icon">ðŸŸ¢</span>
+            <span class="kpi-title">Parámetros Conformes ${isGreenActive ? '<span class="active-filter-badge">Filtro Activo</span>' : ''}</span>
+            <span class="kpi-icon">🟢</span>
           </div>
           <div class="kpi-value">${stats.totalGreen}</div>
           <div class="kpi-subtitle">${isGreenActive ? 'Filtro activo (clic para quitar)' : 'Clic para filtrar solo conformes'}</div>
@@ -4107,10 +4107,10 @@ class PainterChartRenderer {
 
         <div class="kpi-card kpi-yellow kpi-clickable ${isYellowActive ? 'kpi-card-active' : ''}" 
              onclick="stateManager.toggleStatusFilter('yellow')" 
-             title="Clic para filtrar y mostrar solo filas con parÃ¡metros en alerta">
+             title="Clic para filtrar y mostrar solo filas con parámetros en alerta">
           <div class="kpi-header">
-            <span class="kpi-title">En Alerta (1Âª Sem) ${isYellowActive ? '<span class="active-filter-badge">Filtro Activo</span>' : ''}</span>
-            <span class="kpi-icon">ðŸŸ¡</span>
+            <span class="kpi-title">En Alerta (1ª Sem) ${isYellowActive ? '<span class="active-filter-badge">Filtro Activo</span>' : ''}</span>
+            <span class="kpi-icon">🟡</span>
           </div>
           <div class="kpi-value">${stats.totalYellow}</div>
           <div class="kpi-subtitle">${isYellowActive ? 'Filtro activo (clic para quitar)' : 'Clic para filtrar solo en alerta'}</div>
@@ -4118,13 +4118,13 @@ class PainterChartRenderer {
 
         <div class="kpi-card kpi-red kpi-clickable ${isRedActive ? 'kpi-card-active' : ''}" 
              onclick="stateManager.toggleStatusFilter('red')" 
-             title="Clic para filtrar y mostrar solo filas con parÃ¡metros crÃ­ticos">
+             title="Clic para filtrar y mostrar solo filas con parámetros críticos">
           <div class="kpi-header">
-            <span class="kpi-title">CrÃ­ticos / Fuera de Rango ${isRedActive ? '<span class="active-filter-badge">Filtro Activo</span>' : ''}</span>
-            <span class="kpi-icon">ðŸ”´</span>
+            <span class="kpi-title">Crí­ticos / Fuera de Rango ${isRedActive ? '<span class="active-filter-badge">Filtro Activo</span>' : ''}</span>
+            <span class="kpi-icon">🔴</span>
           </div>
           <div class="kpi-value">${stats.totalRed}</div>
-          <div class="kpi-subtitle">${isRedActive ? 'Filtro activo (clic para quitar)' : 'Clic para filtrar solo crÃ­ticos'}</div>
+          <div class="kpi-subtitle">${isRedActive ? 'Filtro activo (clic para quitar)' : 'Clic para filtrar solo crí­ticos'}</div>
         </div>
       </div>
 
@@ -4133,10 +4133,10 @@ class PainterChartRenderer {
         <div class="active-status-filter-banner">
           <div class="status-filter-info">
             <span class="filter-badge badge-${activeStatus}">Filtro Activo</span>
-            <span>Mostrando Ãºnicamente filas con parÃ¡metros en estado <strong>${statusLabel}</strong> (${totalFilteredRows} equipos/filas encontradas)</span>
+            <span>Mostrando Únicamente filas con parámetros en estado <strong>${statusLabel}</strong> (${totalFilteredRows} equipos/filas encontradas)</span>
           </div>
           <button class="btn btn-sm btn-secondary" onclick="stateManager.setFilter('statusFilter', 'ALL')" title="Mostrar todas las filas nuevamente">
-            âœ• Mostrar Todas las Filas
+            📋 Mostrar Todas las Filas
           </button>
         </div>
       ` : ''}
@@ -4145,20 +4145,20 @@ class PainterChartRenderer {
       <div class="matrix-toolbar">
         <div class="matrix-title-wrapper">
           <h2 class="section-title">Matriz de Estado Actual (Painter Chart)</h2>
-          <p class="section-subtitle">SemÃ¡foro de conformidad operativa por equipo segÃºn Ãºltima mediciÃ³n registrada</p>
+          <p class="section-subtitle">Semáforo de conformidad operativa por equipo según última medición registrada</p>
         </div>
         <div class="legend-container">
           <div class="legend-item">
             <span class="legend-dot dot-green"></span>
-            <span class="legend-label">Normal (Dentro de LÃ­mites)</span>
+            <span class="legend-label">Normal (Dentro de Lí­mites)</span>
           </div>
           <div class="legend-item">
             <span class="legend-dot dot-yellow"></span>
-            <span class="legend-label">Alerta (1Âª sem fuera en Bacteria)</span>
+            <span class="legend-label">Alerta (1ª sem fuera en Bacteria)</span>
           </div>
           <div class="legend-item">
             <span class="legend-dot dot-red"></span>
-            <span class="legend-label">CrÃ­tico (â‰¥2 sem Bacteria / Fuera de LÃ­mites)</span>
+            <span class="legend-label">Crí­tico (≥2 sem Bacteria / Fuera de Lí­mites)</span>
           </div>
         </div>
       </div>
@@ -4167,7 +4167,7 @@ class PainterChartRenderer {
     if (podGroups.length === 0) {
       html += `
         <div class="empty-state">
-          <div class="empty-icon">ðŸ”</div>
+          <div class="empty-icon">📄</div>
           <h3>No se encontraron registros</h3>
           <p>Intenta ajustar los filtros de POD, CDU, Semana o Fecha en la barra superior.</p>
           <button class="btn btn-secondary" onclick="stateManager.resetFilters()">Restablecer Filtros</button>
@@ -4192,37 +4192,37 @@ class PainterChartRenderer {
                 <tr>
                   <th class="th-pod">POD</th>
                   <th class="th-cdu">CDU</th>
-                  <th class="th-param" onclick="stateManager.setActiveTab('Bacteria')" title="Ver tendencia histÃ³rica de Bacteria">
+                  <th class="th-param" onclick="stateManager.setActiveTab('Bacteria')" title="Ver tendencia histórica de Bacteria">
                     <div class="th-content">
                       <span>Bacteria</span>
                       <small>&lt; 1500 RLU</small>
                     </div>
                   </th>
-                  <th class="th-param" onclick="stateManager.setActiveTab('PH')" title="Ver tendencia histÃ³rica de PH">
+                  <th class="th-param" onclick="stateManager.setActiveTab('PH')" title="Ver tendencia histórica de PH">
                     <div class="th-content">
                       <span>PH</span>
-                      <small>8 â€“ 9.5</small>
+                      <small>8 - 9.5</small>
                     </div>
                   </th>
-                  <th class="th-param" onclick="stateManager.setActiveTab('Conductivity')" title="Ver tendencia histÃ³rica de Conductividad">
+                  <th class="th-param" onclick="stateManager.setActiveTab('Conductivity')" title="Ver tendencia histórica de Conductividad">
                     <div class="th-content">
                       <span>Conductividad</span>
-                      <small>600 - 850 Î¼S</small>
+                      <small>600 - 850 μS</small>
                     </div>
                   </th>
-                  <th class="th-param" onclick="stateManager.setActiveTab('TDS')" title="Ver tendencia histÃ³rica de TDS">
+                  <th class="th-param" onclick="stateManager.setActiveTab('TDS')" title="Ver tendencia histórica de TDS">
                     <div class="th-content">
                       <span>TDS</span>
                       <small>&lt; 1000 ppm</small>
                     </div>
                   </th>
-                  <th class="th-param" onclick="stateManager.setActiveTab('TSS')" title="Ver tendencia histÃ³rica de TSS">
+                  <th class="th-param" onclick="stateManager.setActiveTab('TSS')" title="Ver tendencia histórica de TSS">
                     <div class="th-content">
                       <span>TSS</span>
                       <small>&lt; 5 ppm</small>
                     </div>
                   </th>
-                  <th class="th-param" onclick="stateManager.setActiveTab('Turbidity')" title="Ver tendencia histÃ³rica de Turbidez">
+                  <th class="th-param" onclick="stateManager.setActiveTab('Turbidity')" title="Ver tendencia histórica de Turbidez">
                     <div class="th-content">
                       <span>Turbidez</span>
                       <small>&lt; 10 NTU</small>
@@ -4243,7 +4243,7 @@ class PainterChartRenderer {
         ORDERED_PARAM_KEYS.forEach(paramKey => {
           const cell = row.cells[paramKey];
           const hasComment = cell.comment && cell.comment.trim().length > 0;
-          const commentIcon = hasComment ? `<span class="cell-comment-badge" title="${this.escapeHtml(cell.comment)}">ðŸ’¬</span>` : '';
+          const commentIcon = hasComment ? `<span class="cell-comment-badge" title="${this.escapeHtml(cell.comment)}">💬</span>` : '';
 
           html += `
             <td class="matrix-cell ${cell.colorClass}" 
@@ -4265,11 +4265,11 @@ class PainterChartRenderer {
                   <span class="tooltip-badge badge-${cell.status}">${cell.badgeText || cell.status}</span>
                 </div>
                 <div class="tooltip-body">
-                  <div><strong>ParÃ¡metro:</strong> ${PARAMETER_CONFIGS[paramKey].label}</div>
+                  <div><strong>Parámetro:</strong> ${PARAMETER_CONFIGS[paramKey].label}</div>
                   <div><strong>Valor Medido:</strong> ${cell.formattedValue} ${cell.unit || ''}</div>
                   <div><strong>Fecha Muestra:</strong> ${cell.date || 'N/A'} (${cell.week || 'N/A'})</div>
                   ${hasComment ? `<div class="tooltip-comment"><strong>Nota:</strong> ${cell.comment}</div>` : ''}
-                  <div class="tooltip-hint">ðŸ‘‰ Clic para ver historial completo de ${PARAMETER_CONFIGS[paramKey].shortLabel}</div>
+                  <div class="tooltip-hint">👉 Clic para ver historial completo de ${PARAMETER_CONFIGS[paramKey].shortLabel}</div>
                 </div>
               </div>
             </td>
@@ -4291,7 +4291,7 @@ class PainterChartRenderer {
     html += `
       <div class="main-bottom-actions">
         <button id="btn-summary-bottom" class="btn btn-summary-cta" onclick="ExecutiveSummaryManager.openAndDownload()" title="Generar y descargar reporte PDF compacto">
-          ðŸ“„ Generar & Descargar Summary (PDF)
+          📄 Generar & Descargar Summary (PDF)
         </button>
       </div>
     `;
@@ -4352,7 +4352,7 @@ class ExecutiveSummaryManager {
       const now = new Date();
       const pad = (n) => String(n).padStart(2, '0');
       const formattedDate = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      timeEl.innerText = `Reporte Ejecutivo de Calidad â€¢ Generado el ${formattedDate}`;
+      timeEl.innerText = `Reporte Ejecutivo de Calidad 📄 Generado el ${formattedDate}`;
     }
 
     // Render compact KPIs
@@ -4364,15 +4364,15 @@ class ExecutiveSummaryManager {
           <strong class="sk-val text-primary-c">${stats.complianceRate}%</strong>
         </div>
         <div class="summary-kpi-pill pill-green">
-          <span class="sk-label">ðŸŸ¢ Normal:</span>
+          <span class="sk-label">🟢 Normal:</span>
           <strong class="sk-val">${stats.totalGreen}</strong>
         </div>
         <div class="summary-kpi-pill pill-yellow">
-          <span class="sk-label">ðŸŸ¡ Alerta:</span>
+          <span class="sk-label">🟡 Alerta:</span>
           <strong class="sk-val">${stats.totalYellow}</strong>
         </div>
         <div class="summary-kpi-pill pill-red">
-          <span class="sk-label">ðŸ”´ CrÃ­tico:</span>
+          <span class="sk-label">🔴 Crí­tico:</span>
           <strong class="sk-val">${stats.totalRed}</strong>
         </div>
       `;
@@ -4394,8 +4394,8 @@ class ExecutiveSummaryManager {
             <th class="sth-pod">POD</th>
             <th class="sth-cdu">CDU</th>
             <th class="sth-param">Bacteria<br><small>&lt; 1500 RLU</small></th>
-            <th class="sth-param">PH<br><small>8 â€“ 9.5</small></th>
-            <th class="sth-param">Conductividad<br><small>600 - 850 Î¼S</small></th>
+            <th class="sth-param">PH<br><small>8 - 9.5</small></th>
+            <th class="sth-param">Conductividad<br><small>600 - 850 μS</small></th>
             <th class="sth-param">TDS<br><small>&lt; 1000 ppm</small></th>
             <th class="sth-param">TSS<br><small>&lt; 5 ppm</small></th>
             <th class="sth-param">Turbidez<br><small>&lt; 10 NTU</small></th>
@@ -4448,7 +4448,7 @@ class ExecutiveSummaryManager {
     const dateStr = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
     const filename = `Liquid_Cooling_Summary_${dateStr}.pdf`;
 
-    showNotification('ðŸ“„ Generando documento PDF completo...', 'info');
+    showNotification('📋 Generando documento PDF completo...', 'info');
 
     if (typeof html2pdf !== 'undefined') {
       try {
@@ -4461,10 +4461,10 @@ class ExecutiveSummaryManager {
         };
 
         await html2pdf().set(opt).from(target).save();
-        showNotification('âœ… Â¡Archivo PDF descargado exitosamente!', 'success');
+        showNotification('📋 Archivo PDF descargado exitosamente!', 'success');
       } catch (err) {
         console.error('Error al generar PDF con html2pdf:', err);
-        showNotification('Abriendo diÃ¡logo de impresiÃ³n para guardar PDF...', 'info');
+        showNotification('Abriendo diálogo de impresión para guardar PDF...', 'info');
         window.print();
       }
     } else {
@@ -4481,12 +4481,12 @@ class ExecutiveSummaryManager {
     if (!target) return;
 
     if (typeof html2canvas === 'undefined') {
-      showNotification('LibrerÃ­a no disponible.', 'error');
+      showNotification('Librerí­a no disponible.', 'error');
       return;
     }
 
     try {
-      showNotification('ðŸ“¸ Generando imagen para el portapapeles...', 'info');
+      showNotification('📋 Generando imagen para el portapapeles...', 'info');
       const canvas = await html2canvas(target, {
         scale: 2.5,
         useCORS: true,
@@ -4500,7 +4500,7 @@ class ExecutiveSummaryManager {
             await navigator.clipboard.write([
               new ClipboardItem({ 'image/png': blob })
             ]);
-            showNotification('âœ… Â¡Imagen copiada al portapapeles! (Ctrl+V para pegar en Teams/WhatsApp)', 'success');
+            showNotification('📋Imagen copiada al portapapeles! (Ctrl+V para pegar en Teams/WhatsApp)', 'success');
           } else {
             this.downloadPDF();
           }
@@ -4520,7 +4520,7 @@ class ExecutiveSummaryManager {
     if (!target) return;
 
     if (typeof html2canvas === 'undefined') {
-      showNotification('LibrerÃ­a de captura no disponible.', 'error');
+      showNotification('Librerí­a de captura no disponible.', 'error');
       return;
     }
 
@@ -4539,7 +4539,7 @@ class ExecutiveSummaryManager {
       link.download = `Liquid_Cooling_Summary_${dateStr}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      showNotification('âœ… Â¡Imagen PNG descargada exitosamente!', 'success');
+      showNotification(' 📋Imagen PNG descargada exitosamente!', 'success');
     } catch (e) {
       console.error(e);
       showNotification('Error al descargar imagen.', 'error');
@@ -4571,7 +4571,7 @@ class TrendChartsRenderer {
       <div class="trend-dashboard-header">
         <div class="trend-title-block">
           <div class="trend-param-badge">${config.shortLabel}</div>
-          <h2 class="trend-title">Dashboard HistÃ³rico: ${config.label}</h2>
+          <h2 class="trend-title">Dashboard Histórico: ${config.label}</h2>
           <p class="trend-desc">${config.description}</p>
         </div>
 
@@ -4591,7 +4591,7 @@ class TrendChartsRenderer {
             </select>
           </div>
           <button class="btn btn-secondary btn-sm" onclick="trendChartsRenderer.exportParameterData('${paramKey}')">
-            ðŸ“¥ Exportar CSV (${config.shortLabel})
+            📤 Exportar CSV (${config.shortLabel})
           </button>
         </div>
       </div>
@@ -4600,8 +4600,8 @@ class TrendChartsRenderer {
       <div class="kpi-grid kpi-grid-param">
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-title">Ãšltima MediciÃ³n</span>
-            <span class="kpi-icon">â±ï¸</span>
+            <span class="kpi-title">Última Medición</span>
+            <span class="kpi-icon">⏱️</span>
           </div>
           <div class="kpi-value">${kpis.latestValue} <small class="kpi-unit">${config.unit}</small></div>
           <div class="kpi-subtitle">Fecha: ${kpis.latestDate}</div>
@@ -4610,7 +4610,7 @@ class TrendChartsRenderer {
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-title">Promedio</span>
-            <span class="kpi-icon">ðŸ“Š</span>
+            <span class="kpi-icon">📊</span>
           </div>
           <div class="kpi-value">${kpis.avg} <small class="kpi-unit">${config.unit}</small></div>
           <div class="kpi-subtitle">Muestras: ${kpis.totalSamples}</div>
@@ -4619,19 +4619,19 @@ class TrendChartsRenderer {
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-title">Rango Min / Max</span>
-            <span class="kpi-icon">ðŸ“</span>
+            <span class="kpi-icon">📏</span>
           </div>
           <div class="kpi-value kpi-range">${kpis.min} - ${kpis.max} <small class="kpi-unit">${config.unit}</small></div>
-          <div class="kpi-subtitle">Extremos histÃ³ricos</div>
+          <div class="kpi-subtitle">Extremos históricos</div>
         </div>
 
         <div class="kpi-card ${parseFloat(kpis.compliancePercent) >= 90 ? 'kpi-green' : 'kpi-red'}">
           <div class="kpi-header">
             <span class="kpi-title">Tasa de Cumplimiento</span>
-            <span class="kpi-icon">ðŸ›¡ï¸</span>
+            <span class="kpi-icon">🛡️</span>
           </div>
           <div class="kpi-value">${kpis.compliancePercent}%</div>
-          <div class="kpi-subtitle">${kpis.outOfSpecCount} lecturas fuera de lÃ­mites</div>
+          <div class="kpi-subtitle">${kpis.outOfSpecCount} lecturas fuera de lí­mites</div>
         </div>
       </div>
 
@@ -4641,14 +4641,14 @@ class TrendChartsRenderer {
           <div class="chart-title-wrap">
             <h3 class="chart-title">Trend by equipment - ${config.label}</h3>
             <span class="chart-limits-badge">
-              ${config.hasLowerLimit ? `LÃ­mite Inf: <strong>${config.lowerLimit} ${config.unit}</strong> | ` : ''}
-              ${config.hasUpperLimit ? `LÃ­mite Sup: <strong>${config.upperLimit} ${config.unit}</strong>` : ''}
+              ${config.hasLowerLimit ? `Lí­mite Inf: <strong>${config.lowerLimit} ${config.unit}</strong> | ` : ''}
+              ${config.hasUpperLimit ? `Lí­mite Sup: <strong>${config.upperLimit} ${config.unit}</strong>` : ''}
             </span>
           </div>
           <div class="chart-legend-custom">
-            <span class="legend-line line-measured"></span> <span>MediciÃ³n Obtenida</span>
-            ${config.hasUpperLimit ? `<span class="legend-line line-upper"></span> <span>LÃ­mite Superior (${config.upperLimit})</span>` : ''}
-            ${config.hasLowerLimit ? `<span class="legend-line line-lower"></span> <span>LÃ­mite Inferior (${config.lowerLimit})</span>` : ''}
+            <span class="legend-line line-measured"></span> <span>Medición Obtenida</span>
+            ${config.hasUpperLimit ? `<span class="legend-line line-upper"></span> <span>Lí­mite Superior (${config.upperLimit})</span>` : ''}
+            ${config.hasLowerLimit ? `<span class="legend-line line-lower"></span> <span>Lí­mite Inferior (${config.lowerLimit})</span>` : ''}
           </div>
         </div>
 
@@ -4660,7 +4660,7 @@ class TrendChartsRenderer {
       <!-- Detailed Historical Records Table -->
       <div class="history-table-card">
         <div class="history-card-header">
-          <h3 class="history-title">Registro CronolÃ³gico de Muestras (${records.length} lecturas)</h3>
+          <h3 class="history-title">Registro Cronológico de Muestras (${records.length} lecturas)</h3>
           <span class="history-subtitle">Ordenado por fecha y semana</span>
         </div>
 
@@ -4673,7 +4673,7 @@ class TrendChartsRenderer {
                 <th>Semana</th>
                 <th>Fecha</th>
                 <th>Valor Medido</th>
-                <th>LÃ­mites</th>
+                <th>Lí­mites</th>
                 <th>Estado</th>
                 <th>Observaciones / Acciones</th>
               </tr>
@@ -4698,9 +4698,9 @@ class TrendChartsRenderer {
         if (config.hasLowerLimit && config.hasUpperLimit) {
           limitsText = `${config.lowerLimit} - ${config.upperLimit} ${config.unit}`;
         } else if (config.hasUpperLimit) {
-          limitsText = `â‰¤ ${config.upperLimit} ${config.unit}`;
+          limitsText = `📄 ${config.upperLimit} ${config.unit}`;
         } else if (config.hasLowerLimit) {
-          limitsText = `â‰¥ ${config.lowerLimit} ${config.unit}`;
+          limitsText = `📄 ${config.lowerLimit} ${config.unit}`;
         }
 
         html += `
@@ -4713,7 +4713,7 @@ class TrendChartsRenderer {
             <td><span class="history-limits">${limitsText}</span></td>
             <td><span class="history-status-badge badge-${statusEval.status}">${statusEval.badgeText || statusEval.status}</span></td>
             <td class="history-comment-cell">
-              ${hasComment ? `<span class="comment-bubble">ðŸ“ ${rec.comment}</span>` : '<span class="text-muted">-</span>'}
+              ${hasComment ? `<span class="comment-bubble">💬 ${rec.comment}</span>` : '<span class="text-muted">-</span>'}
             </td>
           </tr>
         `;
@@ -4784,7 +4784,7 @@ class TrendChartsRenderer {
 
     const datasets = [
       {
-        label: 'MediciÃ³n Semanal',
+        label: 'Medición Semanal',
         data: dataValues,
         borderColor: '#0284c7',
         backgroundColor: 'rgba(2, 132, 199, 0.08)',
@@ -4802,7 +4802,7 @@ class TrendChartsRenderer {
 
     if (upperLimitData) {
       datasets.push({
-        label: `LÃ­mite Superior (${config.upperLimit} ${config.unit})`,
+        label: `Lí­mite Superior (${config.upperLimit} ${config.unit})`,
         data: upperLimitData,
         borderColor: '#10b981', // Green reference line like in Image 2
         borderWidth: 2,
@@ -4816,7 +4816,7 @@ class TrendChartsRenderer {
 
     if (lowerLimitData) {
       datasets.push({
-        label: `LÃ­mite Inferior (${config.lowerLimit} ${config.unit})`,
+        label: `Lí­mite Inferior (${config.lowerLimit} ${config.unit})`,
         data: lowerLimitData,
         borderColor: '#ef4444', // Red lower limit line like in Image 2
         borderWidth: 2,
@@ -4879,7 +4879,7 @@ class TrendChartsRenderer {
               },
               label: function(context) {
                 if (context.datasetIndex === 0) {
-                  return `MediciÃ³n: ${context.parsed.y} ${config.unit}`;
+                  return `Medición: ${context.parsed.y} ${config.unit}`;
                 }
                 return context.dataset.label;
               },
@@ -5120,7 +5120,7 @@ function handleCSVFile(file) {
     try {
       const csvText = event.target.result;
       dataService.parseAndSetData(csvText);
-      showNotification(`Â¡Archivo "${file.name}" cargado exitosamente! (${dataService.rawRecords.length} registros)`, 'success');
+      showNotification(`Archivo "${file.name}" cargado exitosamente! (${dataService.rawRecords.length} registros)`, 'success');
     } catch (err) {
       showNotification('Error al procesar el archivo CSV. Revisa el formato.', 'error');
       console.error(err);
