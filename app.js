@@ -264,3 +264,39 @@ function showNotification(message, type = 'info') {
     setTimeout(() => toast.remove(), 300);
   }, 3500);
 }
+async function guardarRegistro() {
+
+    const datos = {
+
+        pod: document.getElementById("pod").value,
+        cdu: document.getElementById("cdu").value,
+        week: document.getElementById("semana").value,
+        date: document.getElementById("fecha").value,
+        parameter: document.getElementById("prueba").value,
+        measuredData: document.getElementById("resultado").value,
+        comment: document.getElementById("comentario").value
+
+    };
+
+    try {
+
+        const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbxYEzhpYuj2vNiZ-PuqOGzsQgRqOxy8tU05HN9aY3M6rNvJDJz7bV_PERno4jefeUnqdw/exec",
+            {
+                method: "POST",
+                body: JSON.stringify(datos)
+            }
+        );
+
+        document.getElementById("save-message").innerHTML =
+            "✅ Registro guardado correctamente";
+
+    } catch (error) {
+
+        document.getElementById("save-message").innerHTML =
+            "❌ Error al guardar";
+
+        console.error(error);
+
+    }
+}
