@@ -1635,3 +1635,29 @@ body {
     width: 100% !important;
   }
 }
+.data-entry-section{
+    background:#fff;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+#entryTable{
+    width:100%;
+    border-collapse:collapse;
+}
+
+#entryTable th,
+#entryTable td{
+    border:1px solid #ddd;
+    padding:8px;
+}
+
+#entryTable input,
+#entryTable select{
+    width:100%;
+    padding:6px;
+    border:1px solid #ccc;
+    border-radius:4px;
+}
