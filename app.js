@@ -266,15 +266,17 @@ function showNotification(message, type = 'info') {
 }
 async function guardarRegistro() {
 
-  const datos = {
+function guardarRegistro() {
 
-    pod: document.getElementById("pod").value,
-    cdu: document.getElementById("cdu").value,
-    week: document.getElementById("week").value,
-    date: document.getElementById("Fecha").value,
-    parameter: document.getElementById("parameter").value,
-    measuredData: document.getElementById("measuredData").value,
-    comment: document.getElementById("comment").value
+    console.log("pod", document.getElementById("pod"));
+    console.log("cdu", document.getElementById("cdu"));
+    console.log("week", document.getElementById("week"));
+    console.log("Fecha", document.getElementById("Fecha"));
+    console.log("parameter", document.getElementById("parameter"));
+    console.log("measuredData", document.getElementById("measuredData"));
+    console.log("comment", document.getElementById("comment"));
+
+}
 
 };
 
