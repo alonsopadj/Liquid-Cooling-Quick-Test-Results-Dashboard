@@ -266,25 +266,6 @@ function showNotification(message, type = 'info') {
 }
 document.getElementById("btnAddRow").addEventListener("click", addRow);
 
-function addRow(){
-
-    const tbody = document.getElementById("tableBody");
-
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-        <td><input type="date"></td>
-        <td><input type="text"></td>
-        <td><input type="text"></td>
-        <td><input type="text"></td>
-        <td><input type="number"></td>
-        <td><input type="text"></td>
-    `;
-
-    tbody.appendChild(row);
-}
-document.getElementById("btnAddRow").addEventListener("click", addRow);
-
 function addRow() {
 
     const tbody = document.getElementById("tableBody");
