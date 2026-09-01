@@ -3334,19 +3334,24 @@ class DataService {
   /**
    * Initializes data from local CSV file or fallback raw string
    */
-  async initialize() {
-    try {
-      const response = await fetch('');
-      if (response.ok) {
-        const text = await response.text();
-        this.parseAndSetData(text);
-        return;
-      }
-    } catch (e) {
-      console.warn('Using embedded dataset fallback:', e.message);
+ async initialize() {
+
+  /*
+  try {
+    const response = await fetch('data/dataset.csv');
+
+    if (response.ok) {
+      const text = await response.text();
+      this.parseAndSetData(text);
+      return;
     }
-    this.parseAndSetData(DEFAULT_CSV_RAW);
+  } catch (e) {
+    console.warn('Using embedded dataset fallback:', e.message);
   }
+  */
+
+  this.parseAndSetData(DEFAULT_*SV_RAW);
+}
 
   /**
    * Parse CSV line with quote-safety
